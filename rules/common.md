@@ -3,3 +3,4 @@
 - The way you think
 - What is the pros & cons of this plan
 Also give me some short points on which I should focus (to learn) in the plan
+3. Please tell me in details if I need to interact with the Unity Editor. For example : create a game object on scene, create a new prefab ...

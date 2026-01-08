@@ -1,16 +1,3 @@
-# Claude Code Instructions
-
-# My Name is CuongBH
-Please tell me in details if I need to interact with the Unity Editor. For example : create a game object on scene, create a new prefab ...
-## Unity C# Naming Conventions & Code Style
-
-### File Organization
-- **One MonoBehaviour per file**: File name matches class name
-- **Folder structure**: Group by feature/system
- - `Scripts/Player/`, `Scripts/UI/`, `Scripts/Managers/`
-- **Namespace usage**: Organize code logically
- - `namespace GameProject.Player { ... }`
-## Claude Code Guidelines
 You are an expert in C#, Unity, and scalable game development.
 
 ### Key Principles
