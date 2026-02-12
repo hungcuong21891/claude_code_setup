@@ -46,7 +46,12 @@ These steps are executed for **each** target folder. In batch mode, they run in 
 
 2. **Discover all files** in the target folder recursively using Glob (`**/*` pattern within that folder). Skip binary files, build artifacts, and dependency folders (e.g., `node_modules/`, `Library/`, `Temp/`, `obj/`, `bin/`, `.git/`, `Logs/`).
 
-3. **Read all source files** in the folder. For large folders (>50 files), prioritize:
+3. **Check child folders for existing CLAUDE.md files** before reading their contents. For each immediate subdirectory of the target folder:
+   - If the subdirectory contains its own CLAUDE.md, **skip reading that entire subdirectory**. Do not recurse into it.
+   - Collect these paths to include as links in the parent's CLAUDE.md (see "Submodules" section in the structure below).
+   - Only read files that are directly in the target folder or in subdirectories that do NOT have their own CLAUDE.md.
+
+4. **Read all source files** in the folder (excluding skipped subdirectories from step 3). For large folders (>50 files), prioritize:
    - Entry points and main files first
    - Configuration files
    - Core logic files
@@ -54,7 +59,7 @@ These steps are executed for **each** target folder. In batch mode, they run in 
    - Test files last
    - Skip auto-generated files, meta files, and binary assets
 
-4. **Analyze and write** a CLAUDE.md file at the root of the target folder. The documentation must include:
+5. **Analyze and write** a CLAUDE.md file at the root of the target folder. The documentation must include:
 
 ### CLAUDE.md Structure
 
@@ -93,19 +98,26 @@ Brief guide on how to:
 - Modify existing behavior
 - Where to look when debugging issues
 
+## Submodules
+Link to child folders that have their own CLAUDE.md documentation.
+Only include this section if child CLAUDE.md files were found in step 3.
+Example:
+- [FeatureName](./FeatureName/CLAUDE.md) - Brief one-line description of what this submodule does.
+
 ## Gotchas & Important Notes
 Non-obvious behaviors, edge cases, or things that could trip up
 an agent working in this folder.
 ```
 
-5. **Adapt the structure** based on what's actually in the folder. Omit sections that don't apply. Add sections if the code warrants it (e.g., "State Management" for UI code, "API Endpoints" for server code, "Event System" for event-driven code).
+6. **Adapt the structure** based on what's actually in the folder. Omit sections that don't apply. Add sections if the code warrants it (e.g., "State Management" for UI code, "API Endpoints" for server code, "Event System" for event-driven code).
 
-6. **Be specific and actionable.** Prefer concrete file paths, class names, and method signatures over vague descriptions. The goal is for an agent to read this CLAUDE.md and immediately know how to navigate and modify the code.
+7. **Be specific and actionable.** Prefer concrete file paths, class names, and method signatures over vague descriptions. The goal is for an agent to read this CLAUDE.md and immediately know how to navigate and modify the code.
 
 ## Important Rules
 
 - Write the CLAUDE.md at the ROOT of the target folder (e.g., if target is `Assets/fsdk/Scripts/`, write to `Assets/fsdk/Scripts/CLAUDE.md`).
 - If a CLAUDE.md already exists in that folder, read it first and ask the developer whether to overwrite or update it.
+- If a child subfolder already has its own CLAUDE.md, do NOT read or review that subfolder's contents. Simply add a link to its CLAUDE.md in the parent's "Submodules" section.
 - Keep the documentation concise but comprehensive. Aim for quick scanability.
 - Do NOT include information that would quickly become stale (e.g., exact line numbers, counts of files).
 - Focus on structural and conceptual knowledge that remains stable across changes.
