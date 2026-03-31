@@ -49,7 +49,7 @@ Process each submodule that has staged changes, one at a time:
    git commit -m "$(cat <<'EOF'
    <generated message>
 
-   Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+   Co-Authored-By: <model currently in use> <noreply@anthropic.com>
    EOF
    )"
    ```
