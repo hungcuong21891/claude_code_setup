@@ -36,9 +36,14 @@ fi
 # Build the summary line
 SUMMARY="[Unity MCP Step] ${DESCRIPTION} | params: ${PARAMS} | ${STATUS}"
 
+# Append to temp log file
+LOG_FILE="${TMPDIR:-/tmp}/unity-mcp-session.log"
+echo "$(date '+%H:%M:%S') $SUMMARY" >> "$LOG_FILE"
+
 # Output additionalContext to inject into agent's response
 jq -n --arg ctx "$SUMMARY" '{
   "hookSpecificOutput": {
+    "hookEventName": "PostToolUse",
     "additionalContext": $ctx
   }
 }'
