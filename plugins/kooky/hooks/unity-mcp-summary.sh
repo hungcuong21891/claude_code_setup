@@ -23,7 +23,7 @@ LINES=$(wc -l < "$LOG_FILE" | tr -d ' ')
 CONTENT=$(cat "$LOG_FILE")
 rm -f "$LOG_FILE"
 
-jq -n --arg reason "Unity MCP Session Summary ($LINES calls):
+jq -n --arg reason "Before ending, please summarize the Unity MCP actions from this session in your own words. Here is the raw log ($LINES calls):
 $CONTENT" '{
   "decision": "block",
   "reason": $reason
