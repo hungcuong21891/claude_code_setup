@@ -1,5 +1,6 @@
 {
-    "name": "unity-plugin",
+    "name": "kooky",
     "description": "Coding standards and workflows for Unity projects",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "hooks": "./hooks/hooks.json"
 }
