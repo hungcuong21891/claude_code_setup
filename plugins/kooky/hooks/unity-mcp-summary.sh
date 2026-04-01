@@ -25,11 +25,8 @@ rm -f "$LOG_FILE"
 
 jq -n --arg reason "Unity MCP Session Summary ($LINES calls):
 $CONTENT" '{
-  "hookSpecificOutput": {
-    "hookEventName": "Stop",
-    "decision": "block",
-    "reason": $reason
-  }
+  "decision": "block",
+  "reason": $reason
 }'
 
 exit 0
