@@ -1,0 +1,16 @@
+{
+  "name": "kooky-marketplace",
+  "owner": {
+    "name": "Cuong"
+  },
+  "plugins": [
+    {
+      "name": "kooky",
+      "source": "../",
+      "description": "Coding standards and workflows for Unity projects",
+      "version": "1.0.0",
+      "category": "development",
+      "keywords": ["unity", "coding-standards", "hooks"]
+    }
+  ]
+}
