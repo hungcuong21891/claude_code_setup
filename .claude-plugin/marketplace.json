@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "kooky",
-      "source": ".",
+      "source": "./plugins/kooky",
       "description": "Coding standards and workflows for Unity projects",
       "version": "1.0.0",
       "category": "development",
