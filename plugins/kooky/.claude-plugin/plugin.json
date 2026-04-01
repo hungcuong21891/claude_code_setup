@@ -1,6 +1,5 @@
 {
     "name": "kooky",
     "description": "Coding standards and workflows for Unity projects",
-    "version": "1.0.0",
-    "hooks": "./hooks/hooks.json"
+    "version": "1.0.0"
 }
