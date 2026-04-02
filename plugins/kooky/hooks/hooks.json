@@ -1,37 +1,3 @@
 {
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "mcp__UnityMCP__.*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$CLAUDE_PLUGIN_ROOT/hooks/log-unity-mcp.sh\""
-          }
-        ]
-      }
-    ],
-    "PostToolUseFailure": [
-      {
-        "matcher": "mcp__UnityMCP__.*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$CLAUDE_PLUGIN_ROOT/hooks/log-unity-mcp.sh\""
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$CLAUDE_PLUGIN_ROOT/hooks/unity-mcp-summary.sh\""
-          }
-        ]
-      }
-    ]
-  }
+  "hooks": {}
 }
