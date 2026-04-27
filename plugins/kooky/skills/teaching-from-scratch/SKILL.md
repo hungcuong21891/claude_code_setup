@@ -133,7 +133,7 @@ Curve must be smooth: no jumps that skip prerequisites; reuse earlier concepts.
 
 Copy the structures from `assets/plan-template.md` (for `plan.md`) and `assets/day-template.md` (for each day file). Create the `days/` subdirectory. Save all files, then announce the directory path to the learner.
 
-### Step 5 - Initialize the Tracker
+### Step 5 - Initialize the Tracker and Log
 
 Create `learning-plans/<goal-slug>/tracker.md` from `assets/tracker-template.md`. Schema in `references/tracker-format.md`. Initial state:
 - Status: active
@@ -144,6 +144,8 @@ Create `learning-plans/<goal-slug>/tracker.md` from `assets/tracker-template.md`
 CRITICAL: For each day in the plan, populate that day's `Tasks` checklist in the Daily Log with: **ONE umbrella `Theory: <day-theme summary>` entry** covering all of the day's `### <Concept>` theory sections together, **one entry per exercise**, and a final `Measurable goal verification` entry. We use ONE theory checkbox per day ON PURPOSE — a long list of micro-theory ticks bores the learner. The teacher still walks each `### <Concept>` section inline during delivery; only the tracker checkbox is unified. Mid-theory progress is tracked in the day's `Notes` field for resume — see "Daily Lesson Delivery" Theory step. This is what makes mid-day resume possible. See `references/tracker-format.md` (Tasks Checklist section).
 
 ALSO CRITICAL: Each `### Day N` heading in the Daily Log AND each item in the Progress checklist MUST be a markdown link to that day's per-day file under `./days/`. The link target MUST match the filename created in Step 4. See `references/tracker-format.md` (Day Heading Links section).
+
+ALSO create `learning-plans/<goal-slug>/log.md` from `assets/log-template.md`. The log is the append-only chronological audit trail of every action the learner takes — schema and full action-type list in `references/log-format.md`. Tracker = state ("now"); log = history ("what got us here"). Pair every tracker save with a log append for the same event. Seed the log with a `session-start` entry (action: `session-start`, detail: `plan flow initialized`) and a `day-started` entry once Day 1 lesson delivery begins.
 
 After init, hand off to "Daily Lesson Delivery" for Day 1.
 
@@ -167,6 +169,8 @@ From the chosen tracker:
 4. If every task for Day `D` is already checked but the day is not marked done, finalize the day (see Step C4) and re-check whether `D+1` exists; if so, prompt the learner whether to start Day `D+1` now.
 
 Open the session by stating: "Resuming `<slug>`, Day `D` of `N` (`<theme>`). Last completed task: `<previous task>`. Next task: `<resume task>`. X tasks remaining today before we can move to Day `D+1`."
+
+Append a `session-start` entry to `log.md` (detail: `continue flow, resume at <task>`) before delivering any lesson content. Read the last few entries in `log.md` for narrative context — they tell you where the prior session ended (e.g. on a hint, on a failed AC) so the recap can be specific.
 
 ### Step C3 - Resume at the Task
 
@@ -222,13 +226,14 @@ After solving, deliver a structured walkthrough. NEVER drop the solution and sto
 6. **"If you see this again"** - one-sentence pattern signature so the learner recognizes the shape next time (e.g. "Two-pointer scan over a sorted array — recognize it when paired bounds shrink inward").
 7. **Comprehension check** - ONE Socratic question on the most important concept. Wait for the learner's answer. Hint-ladder if they struggle. If they cannot answer at all, mark the concept shaky and propose a recovery exercise tomorrow (Step S6).
 
-### Step S5 - Update the Tracker
+### Step S5 - Update the Tracker and Log
 
 1. Tick the surrendered task in the day's `Tasks` checklist.
 2. Append to that day's `Struggles` field: `Surrendered <task> on YYYY-MM-DD; reviewed walkthrough; comprehension check: <pass|partial|fail>`.
 3. Save the tracker immediately.
+4. Append two entries to `log.md`: a `surrender-requested` entry (detail: task name) at the start of the surrender flow, and a `surrender-walkthrough-delivered` entry (detail: `<task> — comprehension <pass|partial|fail>`) after Step S4 completes. Save the log.
 
-The surrender is logged honestly — future-you reading the tracker should see exactly where they leaned on the teacher. If this was the last task of Day `D`, run the Finish-the-Day Gate (Continue Flow Step C4 finalization) as usual.
+The surrender is logged honestly — future-you reading the tracker AND the log should see exactly where they leaned on the teacher. If this was the last task of Day `D`, run the Finish-the-Day Gate (Continue Flow Step C4 finalization) as usual and append a `day-completed` log entry.
 
 ### Step S6 - Continuation Prompt
 
@@ -250,8 +255,8 @@ Used by Plan Flow (Day 1 after Step 5) and Continue Flow (Step C3). For each tas
    - Offer hint ladder rungs from `references/teaching-principles.md` only when stuck.
    - The exercise task in the tracker is ticked ONLY when EVERY Acceptance Criterion passes. If even one is partial or failed, the exercise stays open - send the learner back with the failed criteria called out.
 4. **Measurable goal verification task** - have the learner demonstrate the day's goal (run code, explain back, draw the diagram). Tick it when verified.
-5. **After every task tick, save the tracker.** This is what makes mid-day resume work - if the session dies right after a tick, `continue` will pick up at the next task.
-6. **When the last task ticks off**, run the Finish-the-Day Gate (Continue Flow Step C4 finalization) - mark the day done, increment `Current day`, ask whether to proceed.
+5. **After every task tick, save the tracker AND append the matching entry to `log.md`.** This is what makes mid-day resume work - if the session dies right after a tick, `continue` will pick up at the next task. Log actions follow `references/log-format.md` (e.g. `theory-section-cleared` after each section's check, `theory-task-cleared` when the umbrella tick lands, `exercise-submitted` + `exercise-ac-result` + `exercise-cleared` for graded exercises, `measurable-goal-verified` for the verification task, `hint-given` whenever a hint-ladder rung is delivered). Save both files.
+6. **When the last task ticks off**, run the Finish-the-Day Gate (Continue Flow Step C4 finalization) - mark the day done, increment `Current day`, ask whether to proceed. Append a `day-completed` entry to the log.
 
 ## Honor the Teacher Persona
 
@@ -287,9 +292,11 @@ If a slug already exists, append `-v2`, `-v3`, etc.
 - `references/plan-design-guide.md` - methodology for mapping skill curve to days (includes Principle 6.25: one-file-per-day directory structure).
 - `references/teaching-principles.md` - Socratic method, hint ladder, refusal scripts.
 - `references/tracker-format.md` - tracker schema, day-heading link rules, and update rules.
+- `references/log-format.md` - log schema, action-type list, and append-only update rules.
 - `assets/plan-template.md` - copy this structure when creating `plan.md` (the INDEX file).
 - `assets/day-template.md` - copy this structure when creating each `./days/day-NN-<slug>.md` file.
 - `assets/tracker-template.md` - copy this structure when creating `tracker.md`.
+- `assets/log-template.md` - copy this structure when creating `log.md`.
 
 ## Output Directory Layout (every plan)
 
@@ -297,6 +304,7 @@ If a slug already exists, append `-v2`, `-v3`, etc.
 learning-plans/<goal-slug>/
   plan.md                       # Index (assets/plan-template.md)
   tracker.md                    # Progress + Tasks (assets/tracker-template.md)
+  log.md                        # Append-only activity log (assets/log-template.md)
   days/
     day-01-<slug>.md            # Per-day lesson (assets/day-template.md)
     day-02-<slug>.md
@@ -309,6 +317,7 @@ Cross-link discipline:
 - `tracker.md` Progress checklist AND Daily Log headings link to the same day files.
 - Each day file links Previous/Next and back to `plan.md` + `tracker.md`.
 - All three locations MUST agree on filenames; rename in one pass if changing.
+- `log.md` is paired with `tracker.md` — every tracker save has a matching log append for the same event. See `references/log-format.md`.
 
 ## Security Policy
 

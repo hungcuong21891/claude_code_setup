@@ -7,6 +7,7 @@
 **Total days:** <N>
 **Plan:** ./plan.md
 **Day files:** ./days/
+**Log:** ./log.md
 
 ## Progress
 

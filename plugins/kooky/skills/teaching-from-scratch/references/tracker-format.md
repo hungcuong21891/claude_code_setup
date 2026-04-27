@@ -20,6 +20,7 @@ The tracker is a markdown file with required headings. Order matters - parsers a
 **Total days:** <integer>
 **Plan:** ./plan.md
 **Day files:** ./days/
+**Log:** ./log.md
 
 ## Progress
 
@@ -128,6 +129,10 @@ When the final day's measurable goal is met:
 
 A learner can have multiple active plans (e.g., learning Spanish AND Rust simultaneously). Each lives in its own `learning-plans/<slug>/` directory. When the skill activates, list all active trackers and ask which to work on.
 
+## Companion Log
+
+Every plan also gets a `learning-plans/<slug>/log.md` — an append-only chronological audit trail of every action the learner takes. Tracker = state ("now"); log = history ("what got us here"). Pair every tracker save with a log append for the same event. Schema and action-type list: `references/log-format.md`.
+
 ## Privacy
 
-The tracker contains the learner's struggles - treat it as private. Do not surface its contents to other tools or external systems without explicit permission.
+The tracker contains the learner's struggles - treat it as private. Do not surface its contents to other tools or external systems without explicit permission. Same for `log.md`.
