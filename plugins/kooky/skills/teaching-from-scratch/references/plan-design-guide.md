@@ -131,18 +131,49 @@ EVERY exercise in `plan.md` MUST carry two extra fields in addition to the task 
   - [ ] `is_prime(2)` returns `True`.
   - [ ] `is_prime(15)` returns `False`.
   - [ ] Solution does not import any library.
-  - [ ] Learner can explain in one sentence why the loop bounds are what they are.
+  - [ ] Function signature includes type hints on parameter and return.
 
 Rules for AC:
 1. Each criterion is **observable** - the teacher and learner can both agree on pass/fail.
 2. Each criterion is **binary** - no "mostly", no "kind of". Partial = fail.
-3. The AC is **complete** - if all items pass, the exercise is genuinely done. Do not leave a real requirement implicit.
-4. The AC is **minimal** - 2-5 items per exercise. If you need 10, the exercise is too big - split it.
-5. The AC is **front-loaded into the plan** - written when designing the day, NOT when grading.
+3. Each criterion is **project-state verifiable** - the teacher must be able to grade it by inspecting the workspace (file existence, file content, command output, test results) WITHOUT asking the learner to narrate or recall theory. **Theory-recall ACs are forbidden** ("explain in one sentence why X", "describe the difference between Y and Z", "tell the teacher when…"). Theory comprehension is checked during the Theory umbrella task's per-section Socratic checks — it does NOT belong in exercise grading. If you find yourself writing such an AC, either drop it (the Theory step already covers it) or convert it into an artifact AC (e.g. "a `notes/day-NN.md` file exists and names a specific behavior, not a generic statement"). Reflection-style exercises that PRODUCE a written file are fine — the file's content is gradable from disk; what's banned is asking the learner to verbally re-explain a concept as part of an exercise rubric.
+4. The AC is **complete** - if all items pass, the exercise is genuinely done. Do not leave a real requirement implicit.
+5. The AC is **minimal** - 2-5 items per exercise. If you need 10, the exercise is too big - split it.
+6. The AC is **front-loaded into the plan** - written when designing the day, NOT when grading.
 
 Why DoD + AC: without them, "is the exercise done?" becomes a vibe call. With them, grading is a checklist walk - faster, fairer, and the learner knows the bar before starting. Self-check (Principle 7) is the learner-facing version of the AC; the AC is the teacher's full grading rubric.
 
 A plan that ships exercises without DoD + AC is INCOMPLETE. Revise before saving.
+
+## Principle 6.6 - Exercises Are Practice Toward the Goal
+
+Every exercise MUST produce an artifact that is BOTH:
+
+1. **The kind of thing a working engineer produces while pursuing THIS project's goal** — code that runs, a test that gates behavior, a migration, a config file, a Dockerfile, a deployment script, an architecture diagram used for a design decision, a capacity/scale calculation that informs sizing, an ADR, a runbook, a threat model.
+2. **A step that moves the measurable goal closer** — directly (it ships in the project) or as load-bearing foundation (later days build on it).
+
+**Forbidden exercise patterns** — these are learning-journal entries dressed up as exercises and they DO NOT belong in this skill:
+
+- "Write 2 sentences explaining X in `notes/day-NN.md`."
+- "Describe in your own words how Y works."
+- "Reflection write-up on what you learned today."
+- "Compare A and B in a written paragraph."
+- Any exercise whose only deliverable is a written explanation of a concept.
+
+These were sometimes used as the "Reapply" rung in older plans. They are banned. Theory comprehension belongs in the Theory umbrella task's per-section Socratic checks, not in artifact-producing exercises. If a "Reapply" rung doesn't have a real engineering artifact to produce, drop it — a day with two strong code/config exercises beats a day padded with a reflection essay.
+
+**Allowed non-code exercise artifacts** — only when they are deliverables a working engineer would produce on this project:
+
+- Architecture / data-flow diagrams that drive a design decision in this codebase.
+- Capacity / scale write-ups that set concrete numbers (pool sizes, instance counts) the project will use.
+- ADRs / threat models / runbooks that ship alongside the codebase.
+- API contracts (OpenAPI fragments) that other services will consume.
+
+The test for "is this a real engineering artifact": would a teammate on this project actually open and use the file later? If the answer is "no, it's just there to prove the learner understood", it is forbidden.
+
+**Legacy plans:** if a day file in an active plan contains a forbidden write-up exercise (designed before this rule), treat it as a legacy bug. At grading time, skip the exercise (auto-tick), record a note in that day's `Adjustments` and the log, and proceed. Do NOT assign the write-up to the learner.
+
+A plan that ships forbidden write-up exercises is INCOMPLETE. Revise before saving.
 
 ## Principle 7 - Self-Check Without Spoilers
 

@@ -50,14 +50,14 @@
   - [ ] <e.g., "Solution uses concept A, not a manual loop workaround.">
 
 ### 3. Reapply — <Name>
-- **Task:** <task using the concept in a slightly varied scenario>
+- **Task:** <task using the concept in a slightly varied scenario — MUST produce a real engineering artifact (code, test, config, migration, diagram used for design, capacity write-up, ADR, etc.). NOT a learning-journal write-up like "explain X in notes/day-NN.md".>
 - **Definition of Done:** <artifact>
 - **Acceptance Criteria:**
   - [ ] <criterion 1>
   - [ ] <criterion 2>
   - [ ] <criterion 3>
 
-(2-5 AC items per exercise. Each is observable + binary. Skip the Recognize rung on Reproduce-only days; add a Reframe rung only on review or phase-3+ days. See references/plan-design-guide.md Principle 6.)
+(2-5 AC items per exercise. Each is observable + binary AND project-state verifiable — gradable from disk, file content, or command output. NO theory-recall ACs ("explain in one sentence why X", "describe Y") — theory comprehension is checked during the Theory umbrella task's Socratic checks, not in exercise grading. Every exercise must produce an artifact a working engineer would actually use on this project AND move the measurable goal closer — write-up / reflection-essay exercises are FORBIDDEN. Skip the Recognize rung on Reproduce-only days; if the Reapply rung doesn't have a real engineering artifact to produce, drop it rather than padding with a write-up. See references/plan-design-guide.md Principles 6, 6.5, and 6.6.)
 
 ## Self-Check
 
