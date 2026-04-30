@@ -57,6 +57,7 @@ Time uses 24-hour local time. If timezone matters across sessions, append the of
 | `day-completed` | When the day is finalized (all tasks ticked, day status -> done) | minutes spent + measurable-goal-met outcome |
 | `surrender-requested` | When the surrender flow starts | task being surrendered |
 | `surrender-walkthrough-delivered` | After the Senior Teacher Walkthrough finishes | task + comprehension-check result (pass / partial / fail) |
+| `evaluation-rendered` | After the Evaluate Flow prints its scorecard to chat | scope (e.g. "Days 1..N") + headline metrics (hint/day, first-submit-AC%, surrenders, comp-acc%) |
 | `pause` | When the learner pauses the plan (top-level `Status: paused`) | reason if given |
 | `resume` | When the learner resumes a paused plan | - |
 | `plan-adjusted` | When the plan or tracker is materially changed | matches the corresponding `Adjustments` entry in the tracker |

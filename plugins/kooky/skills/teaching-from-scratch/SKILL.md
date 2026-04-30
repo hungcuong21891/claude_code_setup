@@ -1,7 +1,7 @@
 ---
 name: teaching-from-scratch
-description: Designs personalized day-by-day learning curricula and acts as a teacher (Socratic instruction, exercise grading, never solves for the learner UNLESS the `surrender` argument is explicitly used). EXPLICIT INVOCATION ONLY - activate ONLY when the user names this skill (e.g. "/teaching-from-scratch", "/teaching-from-scratch surrender", "use the teaching-from-scratch skill"). Do NOT auto-activate on generic phrases like "teach me X", "help me learn Y", or "I want to become a Z" - those are normal conversation unless the user explicitly opts in. When invoked: interviews the learner (goal, timeframe, experience), runs a feasibility gate (refuses to plan if the timeframe is unrealistic), generates plan.md and tracker.md under a learning-plans subdirectory, then delivers daily lessons via theory then exercise then grading without writing the learner's code. The `surrender` argument is the only escape hatch — the teacher solves the current task and delivers a senior-teacher walkthrough.
-argument-hint: "plan|continue|surrender"
+description: Designs personalized day-by-day learning curricula and acts as a teacher (Socratic instruction, exercise grading, never solves for the learner UNLESS the `surrender` argument is explicitly used). EXPLICIT INVOCATION ONLY - activate ONLY when the user names this skill (e.g. "/teaching-from-scratch", "/teaching-from-scratch surrender", "use the teaching-from-scratch skill"). Do NOT auto-activate on generic phrases like "teach me X", "help me learn Y", or "I want to become a Z" - those are normal conversation unless the user explicitly opts in. When invoked: interviews the learner (goal, timeframe, experience), runs a feasibility gate (refuses to plan if the timeframe is unrealistic), generates plan.md and tracker.md under a learning-plans subdirectory, then delivers daily lessons via theory then exercise then grading without writing the learner's code. The `surrender` argument is the only escape hatch — the teacher solves the current task and delivers a senior-teacher walkthrough. The `evaluate` argument produces a learner-performance debrief (pace and quality metrics) computed from the tracker and log of completed days.
+argument-hint: "plan|continue|surrender|evaluate"
 ---
 
 # Teaching From Scratch
@@ -21,6 +21,7 @@ Activate ONLY when the user explicitly names this skill. Recognized invocations:
 - `/teaching-from-scratch plan`
 - `/teaching-from-scratch continue`
 - `/teaching-from-scratch surrender`
+- `/teaching-from-scratch evaluate`
 - "use the teaching-from-scratch skill"
 - "activate teaching-from-scratch"
 - "run teaching-from-scratch"
@@ -39,228 +40,29 @@ If invoked without arguments, present available operations via `AskUserQuestion`
 | `plan` | Run the full intake-and-design flow (interview, feasibility, generate plan + tracker, start Day 1) |
 | `continue` | Resume the active plan at the exact task where the learner left off |
 | `surrender` | Solve the current task for the learner and deliver a senior-teacher walkthrough explaining the solution |
+| `evaluate` | Produce a learner-performance debrief (pace and quality metrics) for all completed days, computed from the tracker and log. No file writes; chat output only. |
 
-Present with header "Teaching Operation", question "What would you like to do?". Then dispatch to the matching flow below. If `continue` is chosen but no active tracker exists, fall back to `plan` after telling the learner.
+Present with header "Teaching Operation", question "What would you like to do?". Then dispatch to the matching flow below. If `continue` or `evaluate` is chosen but no active tracker exists, fall back to `plan` after telling the learner.
 
 ## Arguments
 
 - `plan`: Start fresh. Runs interview -> feasibility gate -> plan design -> tracker init -> Day 1 lesson delivery. If an active tracker already exists in CWD, ask the learner whether to (a) keep it and switch to `continue`, (b) archive it (set Status: paused) and start a new plan, or (c) replace it with a `-v2` slug.
 - `continue`: Resume an existing plan. Reads the active tracker, jumps to `Current day`, finds the first unchecked task in that day's `Tasks` list, and resumes there. The learner MUST complete every task of the current day before the day is marked done and `Current day` is incremented. If no active tracker exists, apologize and offer to run `plan`.
 - `surrender`: Escape hatch for the learner. Locates the active tracker, identifies the current unchecked task, SOLVES it on the learner's behalf (writes the full code / answers the theory question / produces the goal demo), then delivers a Senior Teacher Walkthrough — a structured, deep-dive explanation of the solution. Ticks the task, logs the surrender in `Struggles`, and offers a recovery exercise on the same concept. If no active tracker exists, apologize and offer to run `plan`.
+- `evaluate`: Read-only learner debrief. Reads the active tracker and `log.md`, computes pace and quality metrics over **all completed days** (Status: done), and prints a scorecard to chat. NO file writes other than a single `evaluation-rendered` log entry for audit. NO grading of the learner as a person — metric labels stick to the work product. Does NOT advance `Current day`, modify exercise state, or alter the plan. If no active tracker exists, apologize and offer to run `plan`. If 0 days are completed, apologize and suggest finishing Day 1 first.
 
-## Plan Flow (argument: `plan`)
+## Flows
 
-Run Steps 1 -> 5 in order, then hand off to "Daily Lesson Delivery" for Day 1.
+Each argument dispatches to a dedicated flow file. Read the matching file end-to-end before executing.
 
-### Step 1 - Pre-flight: Existing Plans
+- `plan` -> `references/flows/plan-flow.md` (interview, feasibility gate, plan + tracker + log init, hand off to Day 1).
+- `continue` -> `references/flows/continue-flow.md` (locate tracker, find resume point, hand off to Daily Lesson Delivery, finish-the-day gate).
+- `surrender` -> `references/flows/surrender-flow.md` (the ONLY branch where the teacher solves the work; mandatory Senior Teacher Walkthrough).
+- `evaluate` -> `references/flows/evaluate-flow.md` (read-only learner debrief; pace + 4 quality metrics; no tracker writes).
 
-Look for `learning-plans/<slug>/tracker.md` files in CWD. If any tracker has `Status: active`, ask the learner:
-- (a) Switch to `continue` and resume that plan?
-- (b) Pause it (set `Status: paused`, append note in `Adjustments`) and start a new plan?
-- (c) Replace it with a new slug suffixed `-v2` / `-v3`?
+## Daily Lesson Delivery
 
-Only proceed to Step 2 after the learner picks a path.
-
-### Step 2 - Interview the Learner (4 questions, two blocks)
-
-Use the exact wording in `references/interview-script.md`. Ask one block at a time, wait for the reply, then ask the next.
-
-Block A (Goal):
-1. What is the goal you want to achieve? (concrete, observable end state)
-2. How long do you want to take to achieve it? (days / weeks / months, and ~hours per day)
-
-Block B (Skill assessment):
-3. What is your overall background as a learner / professional? (years, related fields)
-4. Do you have any experience in this specific field? If yes, describe what you already know.
-
-If the goal is vague (e.g. "learn web dev"), probe with the follow-ups in `references/interview-script.md` until the goal is observable (a concrete project, output, or demonstrable skill).
-
-### Step 3 - Feasibility Gate (HARD CHECK)
-
-After the interview, BEFORE designing the plan, check whether the requested timeframe is realistic for the goal given the learner's starting level. Methodology and heuristics in `references/interview-script.md` (Feasibility Check section).
-
-Three outcomes:
-- **Feasible** (>= 1.3x the floor) - proceed to the confirmation summary, then Step 4.
-- **Tight but feasible** (1.0x - 1.3x the floor) - warn the learner the plan will be aggressive, ask them to confirm the daily hours commitment, then proceed.
-- **Infeasible** (< 1.0x the floor) - APOLOGIZE, DO NOT generate a plan, recommend the realistic minimum days/hours, and offer three options:
-  1. Extend the timeframe to at least the minimum.
-  2. Increase daily hours.
-  3. Narrow the goal to one feasible within the original timeframe.
-  Wait for the learner's choice. Re-run the feasibility check on the new inputs. Only proceed to Step 4 when feasibility passes.
-
-NEVER fudge a plan to fit an unrealistic timeframe - it sets the learner up to fail and blame the plan. Honesty here saves them weeks.
-
-### Step 4 - Design the Day-by-Day Plan (split into per-day files)
-
-Methodology in `references/plan-design-guide.md`. Output is a SMALL DIRECTORY, not a single monolithic file:
-
-```
-learning-plans/<goal-slug>/
-  plan.md                       # INDEX only (use assets/plan-template.md)
-  days/
-    day-01-<topic-slug>.md      # Full Day 1 lesson (use assets/day-template.md)
-    day-02-<topic-slug>.md      # Full Day 2 lesson
-    ...
-    day-NN-final-assessment.md  # Final day
-```
-
-Why split: see `references/plan-design-guide.md` Principle 6.25 (context efficiency, browseability, resilience, linkability).
-
-**`plan.md` (INDEX, ~80 lines max)** contains:
-- Header (created date, timeframe, paths to days/ and tracker).
-- Learner profile.
-- Outcome (final measurable goal as a checklist of observable criteria).
-- Curriculum map (phase table).
-- Day-by-day index (grouped by phase, each entry a markdown link to the day file).
-- Final assessment summary.
-- "How to use these files" section.
-- References.
-
-**Each `./days/day-NN-<topic-slug>.md`** contains:
-- Header line with Previous/Next links and back-links to `plan.md` + `tracker.md`.
-- **Phase** label.
-- **Measurable goal** - a verifiable outcome the learner can demonstrate.
-- **Background theory** - 3-7 self-contained concept sections. Each section is a `### <Concept>` heading followed by 2-5 paragraphs that actually teach the concept inline, plus an *italicised reference link* at the end. The cited source is for further reading only — the learner must NOT need to open it to understand or to do the exercises. See `references/plan-design-guide.md` Principle 3 for the required format. A day file that ships theory as a bullet list of links is INCOMPLETE — revise before saving.
-- **Exercises** - 1-3 practice tasks. Each MUST: (1) produce an artifact a working engineer would actually use on THIS project (code, test, config, migration, deployment script, ADR, capacity write-up, etc.), (2) move the measurable goal closer, and (3) carry its own **Definition of Done (DoD)** and **Acceptance Criteria (AC)**. Learning-journal write-ups ("write 2 sentences explaining X in notes/day-NN.md", "describe Y in your own words", reflection essays) are FORBIDDEN — see `references/plan-design-guide.md` Principle 6.6. Theory comprehension belongs in the Theory step. Without DoD + AC, or if the exercise is a write-up, revise before saving.
-- **Self-check** - how the learner verifies their own work without you handing over the answer.
-
-Day-file naming:
-- `day-NN-<topic-slug>.md` where `NN` is two-digit zero-padded; `<topic-slug>` is kebab-case, 2-4 words derived from the day's theme.
-- Examples: `day-01-python-setup.md`, `day-21-redis-leaderboard.md`, `day-30-final-assessment.md`.
-- Filenames MUST match the links in `plan.md` AND in `tracker.md` (Progress + Daily Log headings).
-
-Curve must be smooth: no jumps that skip prerequisites; reuse earlier concepts.
-
-Copy the structures from `assets/plan-template.md` (for `plan.md`) and `assets/day-template.md` (for each day file). Create the `days/` subdirectory. Save all files, then announce the directory path to the learner.
-
-### Step 5 - Initialize the Tracker and Log
-
-Create `learning-plans/<goal-slug>/tracker.md` from `assets/tracker-template.md`. Schema in `references/tracker-format.md`. Initial state:
-- Status: active
-- Current day: 1
-- Completed days: empty
-- Started: today's date
-
-CRITICAL: For each day in the plan, populate that day's `Tasks` checklist in the Daily Log with: **ONE umbrella `Theory: <day-theme summary>` entry** covering all of the day's `### <Concept>` theory sections together, **one entry per exercise**, and a final `Measurable goal verification` entry. We use ONE theory checkbox per day ON PURPOSE — a long list of micro-theory ticks bores the learner. The teacher still walks each `### <Concept>` section inline during delivery; only the tracker checkbox is unified. Mid-theory progress is tracked in the day's `Notes` field for resume — see "Daily Lesson Delivery" Theory step. This is what makes mid-day resume possible. See `references/tracker-format.md` (Tasks Checklist section).
-
-ALSO CRITICAL: Each `### Day N` heading in the Daily Log AND each item in the Progress checklist MUST be a markdown link to that day's per-day file under `./days/`. The link target MUST match the filename created in Step 4. See `references/tracker-format.md` (Day Heading Links section).
-
-ALSO create `learning-plans/<goal-slug>/log.md` from `assets/log-template.md`. The log is the append-only chronological audit trail of every action the learner takes — schema and full action-type list in `references/log-format.md`. Tracker = state ("now"); log = history ("what got us here"). Pair every tracker save with a log append for the same event. Seed the log with a `session-start` entry (action: `session-start`, detail: `plan flow initialized`) and a `day-started` entry once Day 1 lesson delivery begins.
-
-After init, hand off to "Daily Lesson Delivery" for Day 1.
-
-## Continue Flow (argument: `continue`)
-
-### Step C1 - Locate the Active Tracker
-
-Look for `learning-plans/<slug>/tracker.md` files in CWD.
-- 0 active trackers -> apologize, explain `continue` needs an existing plan, offer to run `plan` instead. Stop.
-- 1 active tracker -> use it.
-- 2+ active trackers -> list them with `Current day` / `Total days` and ask the learner which to resume.
-
-Read both `tracker.md` and the matching `plan.md` end-to-end before responding.
-
-### Step C2 - Locate the Resume Point
-
-From the chosen tracker:
-1. Read `Current day` (call it `D`).
-2. Read the Daily Log entry for Day `D` and its `Tasks` checklist.
-3. The first unchecked task is the resume point.
-4. If every task for Day `D` is already checked but the day is not marked done, finalize the day (see Step C4) and re-check whether `D+1` exists; if so, prompt the learner whether to start Day `D+1` now.
-
-Open the session by stating: "Resuming `<slug>`, Day `D` of `N` (`<theme>`). Last completed task: `<previous task>`. Next task: `<resume task>`. X tasks remaining today before we can move to Day `D+1`."
-
-Append a `session-start` entry to `log.md` (detail: `continue flow, resume at <task>`) before delivering any lesson content. Read the last few entries in `log.md` for narrative context — they tell you where the prior session ended (e.g. on a hint, on a failed AC) so the recap can be specific.
-
-### Step C3 - Resume at the Task
-
-Hand off to the matching part of "Daily Lesson Delivery" depending on the task type (Theory, Exercise, or Measurable goal verification). Skip earlier completed tasks - DO NOT re-teach concepts the learner has already passed unless they ask for a recap.
-
-### Step C4 - Finish-the-Day Gate (NON-NEGOTIABLE)
-
-Do NOT advance `Current day` or start Day `D+1` content while ANY task in Day `D`'s checklist is unchecked.
-
-If the learner asks to skip ahead ("can we just start tomorrow?", "skip the last exercise"), refuse and respond with:
-> "Day `D` still has `<N>` task(s) open: `<list>`. Finish them first - the Day `D+1` material assumes you've done these. Want a hint on the next one?"
-
-Only when the last task of Day `D` ticks off:
-1. Set Day `D` `Status: done`, fill `Completed`, `Time spent`, `Measurable goal met`, `Struggles`, `Breakthroughs`.
-2. Tick the Day `D` checkbox in the Progress list.
-3. Increment `Current day` to `D+1`.
-4. Update top-level `Last session`.
-5. Ask the learner whether to continue into Day `D+1` now or stop here.
-
-## Surrender Flow (argument: `surrender`)
-
-The ONLY branch where the teacher solves the work. Used when the learner explicitly gives up on the current task and wants to see the answer. Every other branch refuses.
-
-### Step S1 - Locate the Active Tracker
-
-Same as Continue Flow Step C1 (0 active -> apologize and offer `plan`; 1 -> use; 2+ -> ask which).
-
-### Step S2 - Locate the Surrender Target
-
-Read `Current day` and the Daily Log entry for that day. The surrender target is the first unchecked task in that day's `Tasks` checklist. Confirm with the learner before solving:
-
-> "You're surrendering on `<task>` (Day `D` of `N`, `<theme>`). I'll solve it and walk you through the solution. Continue?"
-
-Wait for explicit yes. If the learner says no, abort and return to Continue Flow.
-
-### Step S3 - Solve the Task
-
-Solve based on task type. Read the day's `./days/day-NN-<slug>.md` for the exact spec first.
-
-- **Theory task** - deliver the full concept explanation in chat (no Socratic probe). Same depth and IN-CHAT delivery as a normal theory step (do NOT just point at the file or the source link).
-- **Exercise task** - write a complete solution that passes EVERY Acceptance Criterion in the day file. Then walk each AC out loud, marking pass / pass / pass against your own code so the rubric is honored — surrender does NOT skip the AC walkthrough.
-- **Measurable goal verification** - produce the artifact the goal asks for (run output, diagram, demo) on the learner's behalf.
-
-### Step S4 - Senior Teacher Walkthrough (MANDATORY)
-
-After solving, deliver a structured walkthrough. NEVER drop the solution and stop — the walkthrough is what converts surrender into learning. Cover, in order:
-
-1. **Intent** - one sentence on what the solution does at the highest level.
-2. **Chunk-by-chunk** - break the solution into 3-7 logical chunks. For each: what it does AND why this shape (which concept it applies; one alternative avoided and why).
-3. **Concepts named** - tie each chunk back to a theory section from today's day file or earlier days. Cite the day's reference link for further reading.
-4. **Trade-offs** - one viable alternative implementation and why we did not pick it (perf, readability, scope).
-5. **Pitfalls** - inputs and edge cases that would break a naive version of this code; how the solution handles them.
-6. **"If you see this again"** - one-sentence pattern signature so the learner recognizes the shape next time (e.g. "Two-pointer scan over a sorted array — recognize it when paired bounds shrink inward").
-7. **Comprehension check** - ONE Socratic question on the most important concept. Wait for the learner's answer. Hint-ladder if they struggle. If they cannot answer at all, mark the concept shaky and propose a recovery exercise tomorrow (Step S6).
-
-### Step S5 - Update the Tracker and Log
-
-1. Tick the surrendered task in the day's `Tasks` checklist.
-2. Append to that day's `Struggles` field: `Surrendered <task> on YYYY-MM-DD; reviewed walkthrough; comprehension check: <pass|partial|fail>`.
-3. Save the tracker immediately.
-4. Append two entries to `log.md`: a `surrender-requested` entry (detail: task name) at the start of the surrender flow, and a `surrender-walkthrough-delivered` entry (detail: `<task> — comprehension <pass|partial|fail>`) after Step S4 completes. Save the log.
-
-The surrender is logged honestly — future-you reading the tracker AND the log should see exactly where they leaned on the teacher. If this was the last task of Day `D`, run the Finish-the-Day Gate (Continue Flow Step C4 finalization) as usual and append a `day-completed` log entry.
-
-### Step S6 - Continuation Prompt
-
-Ask the learner one of three:
-1. Continue with the next task in Day `D` (default if comprehension check passed).
-2. Schedule a recovery exercise on this concept for tomorrow (default if comprehension check was partial / fail). On approval, append a `### Adjustments` line in the tracker noting "Day D+1 add recovery exercise on <concept>".
-3. Stop the session here.
-
-## Daily Lesson Delivery (shared by both flows)
-
-Used by Plan Flow (Day 1 after Step 5) and Continue Flow (Step C3). For each task in the day's checklist, in order:
-
-1. **Recap** previous day's checkpoint in 1-2 lines (skip on Day 1, skip if resuming mid-day).
-2. **Theory task** (ONE umbrella task per day, covers ALL `### <Concept>` sections in the day file) - the day file lists multiple theory sections under "Background Theory". Walk the learner through them ONE AT A TIME, in file order. For each section: deliver the concept IN-CHAT (do NOT just point at the file or the source link — the cited reference is optional further reading), then ask a Socratic check question and wait for the answer. On a correct answer, **append a progress line to the day's `Notes` field** in the tracker, e.g. `Notes: Theory progress — covered <section-A>, <section-B>; next: <section-C>`. Save the tracker. Then move to the next section. On a wrong/shallow answer, hint without giving the answer. **Tick the umbrella Theory checkbox ONLY when the LAST section's check question has been answered correctly.** Save the tracker after every progress note and after the final tick. **Mid-theory resume rule:** if a session resumes with the Theory task still unchecked, read the day's `Notes` field to find which sections have been covered and start from the next one — never re-teach a section the learner has already cleared. If `Notes` is empty / no progress line, start from the first section.
-3. **Exercise tasks** - present clearly INCLUDING the exercise's Definition of Done and the Acceptance Criteria checklist (read straight from the day's `./days/day-NN-<slug>.md` file). DO NOT show solutions or hints unprompted. To submit, the learner says "done" / "ready to grade" / equivalent — they do NOT need to paste files, command outputs, or describe what they did. **Grading is project-state-based:** when the learner submits, inspect the workspace directly to verify each AC. Use `Glob` / `Read` to check file existence and content, `Bash` to run commands the AC requires (e.g. `pytest -q`, `python --version`, `pip list`, `where python`), and quote the actual output back to the learner in the rubric walk. **No AC may require theory recall** ("explain in one sentence why X", "describe the difference between…") — those belong in the Theory step's Socratic checks, not in exercise grading. If a day file's AC list contains such a clause, treat it as a legacy bug: skip the recall AC during grading, note it in the day file's `Adjustments` if revising, and rely on the Theory step instead. See `references/plan-design-guide.md` Principle 6.5 rule 3.
-
-   **NEVER force the learner to verbalize, explain, reason out loud, or answer questions during exercise grading.** The grading loop is: inspect → state result → if failure, name the flaw and explain WHY in teacher voice (1-3 sentences max) → request the artifact fix → re-inspect on resubmit. No "what does the error tell you?", no "walk me through your reasoning", no "answer these three questions then fix it". The teacher does the explaining; the learner does the doing. The learning happens by producing the corrected artifact, not by performing comprehension on demand. The ONLY exception: if verification genuinely cannot be done from disk (interactive shell session, GUI behavior, terminal output from a long-running process you cannot start yourself), ask for that specific artifact — not for the learner's reasoning about it.
-
-   Then:
-   - Walk EACH Acceptance Criterion out loud, marking pass / fail / partial against what you observed in the project. This is the grading rubric - do not skip it.
-   - Confirm what is correct and WHY, citing the file path / command output you saw.
-   - For each failed AC, state in teacher voice: (a) what specifically is wrong, citing the file/line/output, (b) why it fails the AC in 1-3 sentences, (c) the concrete change requested. Do NOT phrase as a question to the learner.
-   - Offer hint ladder rungs from `references/teaching-principles.md` only when the learner explicitly asks "I'm stuck, hint?".
-   - The exercise task in the tracker is ticked ONLY when EVERY Acceptance Criterion passes. If even one is partial or failed, the exercise stays open - send the learner back with the failed criteria and the requested change called out.
-4. **Measurable goal verification task** - verify the day's goal by inspecting project state (run the relevant commands yourself, read the produced artifacts) instead of asking the learner to narrate. Ask the learner only for the parts that require their voice (a 30-second explanation, a diagram they drew, a behavior they observed). Tick when verified.
-5. **After every task tick, save the tracker AND append the matching entry to `log.md`.** This is what makes mid-day resume work - if the session dies right after a tick, `continue` will pick up at the next task. Log actions follow `references/log-format.md` (e.g. `theory-section-cleared` after each section's check, `theory-task-cleared` when the umbrella tick lands, `exercise-submitted` + `exercise-ac-result` + `exercise-cleared` for graded exercises, `measurable-goal-verified` for the verification task, `hint-given` whenever a hint-ladder rung is delivered). Save both files.
-6. **When the last task ticks off**, run the Finish-the-Day Gate (Continue Flow Step C4 finalization) - mark the day done, increment `Current day`, ask whether to proceed. Append a `day-completed` entry to the log.
+Shared by Plan Flow (Day 1 after init) and Continue Flow (Step C3). Full step list in `references/flows/daily-lesson-delivery.md` — covers recap, umbrella theory walk + Socratic checks + mid-theory resume via `Notes`, project-state-based exercise grading with no learner verbalization, measurable-goal verification, per-tick tracker + log saves, and the finish-the-day gate.
 
 ## Honor the Teacher Persona
 
@@ -292,6 +94,11 @@ If a slug already exists, append `-v2`, `-v3`, etc.
 
 ## Files
 
+- `references/flows/plan-flow.md` - full Plan Flow steps (Steps 1-5).
+- `references/flows/continue-flow.md` - full Continue Flow steps (Steps C1-C4).
+- `references/flows/surrender-flow.md` - full Surrender Flow steps (Steps S1-S6).
+- `references/flows/evaluate-flow.md` - full Evaluate Flow steps (Steps E1-E7).
+- `references/flows/daily-lesson-delivery.md` - shared per-task delivery loop used by Plan + Continue.
 - `references/interview-script.md` - exact wording, probing follow-ups, vague-goal handling.
 - `references/plan-design-guide.md` - methodology for mapping skill curve to days (includes Principle 6.25: one-file-per-day directory structure).
 - `references/teaching-principles.md` - Socratic method, hint ladder, refusal scripts.
