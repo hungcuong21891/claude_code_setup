@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Day {{DAY_NUMBER}} — {{DAY_TITLE}}</title>
+<style>
+  :root {
+    --bg: #11161d;
+    --surface: #161c25;
+    --text: #dde3ec;
+    --muted: #8a94a3;
+    --accent: #f0b429;
+    --accent-soft: #5a4716;
+    --rule: #2a313c;
+    --code-bg: #1c2330;
+    --code-text: #e8eef7;
+    --code-border: #28303d;
+    --check-bg: #1d2330;
+    --check-border: #f0b429;
+    --check-label: #f0b429;
+    --kw-bg: rgba(240, 180, 41, 0.15);
+    --kw-text: #ffd76a;
+    --link: #62b0ff;
+  }
+  * { box-sizing: border-box; }
+  html, body { background: var(--bg); }
+  body {
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    color: var(--text);
+    max-width: 72ch;
+    margin: 2.5rem auto;
+    padding: 0 1.25rem 4rem;
+    line-height: 1.65;
+    font-size: 17px;
+  }
+  ::selection { background: var(--accent); color: #11161d; }
+  header { border-bottom: 2px solid var(--rule); padding-bottom: 1rem; margin-bottom: 2rem; }
+  header .meta { color: var(--muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+  header h1 { margin: 0 0 0.75rem; font-size: 1.85rem; line-height: 1.2; color: var(--text); }
+  header .goal { font-style: italic; color: var(--muted); font-size: 0.95rem; }
+  h2 { font-size: 1.35rem; margin-top: 2.5rem; margin-bottom: 0.75rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--rule); color: var(--text); }
+  p { margin: 0.75rem 0; }
+  a { color: var(--link); }
+  code {
+    font-family: "JetBrains Mono", Consolas, "Courier New", monospace;
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    font-size: 0.9em;
+    border: 1px solid var(--code-border);
+  }
+  pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 0.9rem 1rem;
+    overflow-x: auto;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    border: 1px solid var(--code-border);
+  }
+  pre code { background: none; padding: 0; font-size: inherit; border: none; }
+  /* Key-term highlight: applied to important words/phrases inside prose. */
+  .kw {
+    background: var(--kw-bg);
+    color: var(--kw-text);
+    padding: 0.05em 0.3em;
+    border-radius: 2px;
+    font-weight: 600;
+  }
+  strong { color: #ffe9a8; }
+  em { color: #d8e1ee; }
+  .further-reading { display: inline-block; margin-top: 0.5rem; font-size: 0.85rem; color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  .further-reading:hover { color: #ffd76a; }
+  .socratic-check {
+    background: var(--check-bg);
+    border-left: 4px solid var(--check-border);
+    padding: 0.9rem 1.1rem;
+    margin: 1.25rem 0 0;
+    border-radius: 0 4px 4px 0;
+    box-shadow: 0 0 0 1px var(--rule);
+  }
+  .socratic-check .label { font-weight: 700; color: var(--check-label); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.4rem; }
+  .socratic-check .hint { color: var(--muted); font-style: italic; font-size: 0.85rem; margin-top: 0.5rem; }
+  .socratic-check ol, .socratic-check ul { margin: 0.3rem 0 0 1.2rem; padding: 0; }
+  .socratic-check li { margin: 0.3rem 0; }
+  footer { margin-top: 3.5rem; padding-top: 1rem; border-top: 1px solid var(--rule); font-size: 0.85rem; color: var(--muted); font-style: italic; text-align: center; }
+  @media print {
+    html, body { background: white; color: black; }
+    body { max-width: 100%; }
+    .socratic-check { page-break-inside: avoid; background: #fff8e1; color: #1a1a1a; }
+    .kw { background: #fff3b8; color: #1a1a1a; }
+    code, pre { background: #f0ede5; color: #2a2a2a; border-color: #d8d2c2; }
+    a, .further-reading { color: #b8860b; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="meta">Day {{DAY_NUMBER}} · {{PHASE_LABEL}}</div>
+  <h1>{{DAY_TITLE}}</h1>
+  <div class="goal">Measurable goal: {{MEASURABLE_GOAL}}</div>
+</header>
+
+<!--
+  Repeat this block for each ### <Concept> section under ## Background Theory.
+  Wrap 3–7 important words/phrases per section in <span class="kw">…</span>.
+  Pick: defining terms, must-know rules, gotchas, today's-practical-fact phrases.
+-->
+<section>
+  <h2>{{CONCEPT_HEADING}}</h2>
+  {{PROSE_PARAGRAPHS_AS_HTML_WITH_KW_HIGHLIGHTS}}
+  {{CODE_BLOCKS_AS_PRE}}
+  <a class="further-reading" href="{{REFERENCE_URL}}" target="_blank" rel="noopener">Further reading</a>
+  <div class="socratic-check">
+    <div class="label">Socratic check</div>
+    <ol>
+      <li>{{QUESTION_1}}</li>
+      <li>{{QUESTION_2}}</li>
+    </ol>
+    <div class="hint">Answer in chat — the teacher walks you through this section first.</div>
+  </div>
+</section>
+
+<footer>
+  Read alongside the chat walkthrough. The teacher will Socratic-check each section live.
+</footer>
+</body>
+</html>

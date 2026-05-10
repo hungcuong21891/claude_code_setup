@@ -47,6 +47,8 @@ Time uses 24-hour local time. If timezone matters across sessions, append the of
 | `session-start` | At the start of every session (plan / continue / surrender flows) | which flow + resume task |
 | `session-end` | When the learner stops or runs out of time | last task touched |
 | `day-started` | When `Status: in-progress` is first set on a day | day theme |
+| `theory-html-rendered` | After the per-day theory HTML supplement is written and opened in full at chat-walk depth (one entry per render; idempotent skip on resume) | relative path to the rendered html file |
+| `theory-html-section-filled` | Exception-path only: when a single section's HTML body is rewritten mid-day to incorporate a learner-asked clarifier added during the inline walk | section number + concept name |
 | `theory-section-cleared` | After each `### <Concept>` section's check question is answered correctly | concept name (matches the day file's section heading) |
 | `theory-task-cleared` | When the umbrella Theory checkbox is ticked (last section answered) | day theme summary |
 | `exercise-submitted` | When the learner submits an exercise solution | exercise name |

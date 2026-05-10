@@ -106,10 +106,12 @@ If a slug already exists, append `-v2`, `-v3`, etc.
 - `references/teaching-principles.md` - Socratic method, hint ladder, refusal scripts.
 - `references/tracker-format.md` - tracker schema, day-heading link rules, and update rules.
 - `references/log-format.md` - log schema, action-type list, and append-only update rules.
+- `references/theory-html-format.md` - per-day theory HTML supplement spec (auto-rendered at start of each day's Theory task; supplement only, does not replace inline walk).
 - `assets/plan-template.md` - copy this structure when creating `plan.md` (the INDEX file).
 - `assets/day-template.md` - copy this structure when creating each `./days/day-NN-<slug>.md` file.
 - `assets/tracker-template.md` - copy this structure when creating `tracker.md`.
 - `assets/log-template.md` - copy this structure when creating `log.md`.
+- `assets/theory-html-template.html` - self-contained HTML scaffold for the per-day theory supplement.
 
 ## Output Directory Layout (every plan)
 
@@ -123,6 +125,10 @@ learning-plans/<goal-slug>/
     day-02-<slug>.md
     ...
     day-NN-final-assessment.md
+    html/                       # Auto-rendered theory supplements (one .html per day)
+      day-01-<slug>.html
+      day-02-<slug>.html
+      ...
 ```
 
 Cross-link discipline:
