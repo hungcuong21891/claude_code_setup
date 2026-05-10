@@ -1,9 +1,9 @@
-# Continue Flow (argument: `continue`)
+# Continue Flow (flag: `--continue`)
 
 ## Step C1 - Locate the Active Tracker
 
 Look for `learning-plans/<slug>/tracker.md` files in CWD.
-- 0 active trackers -> apologize, explain `continue` needs an existing plan, offer to run `plan` instead. Stop.
+- 0 active trackers -> apologize, explain `--continue` needs an existing plan, offer to run `--plan` instead. Stop.
 - 1 active tracker -> use it.
 - 2+ active trackers -> list them with `Current day` / `Total days` and ask the learner which to resume.
 
@@ -19,7 +19,7 @@ From the chosen tracker:
 
 Open the session by stating: "Resuming `<slug>`, Day `D` of `N` (`<theme>`). Last completed task: `<previous task>`. Next task: `<resume task>`. X tasks remaining today before we can move to Day `D+1`."
 
-Append a `session-start` entry to `log.md` (detail: `continue flow, resume at <task>`) before delivering any lesson content. Read the last few entries in `log.md` for narrative context — they tell you where the prior session ended (e.g. on a hint, on a failed AC) so the recap can be specific.
+Append a `session-start` entry to `log.md` (detail: `--continue flow, resume at <task>`) before delivering any lesson content, then commit per the Commit Protocol in `../log-format.md`. Read the last few entries in `log.md` for narrative context — they tell you where the prior session ended (e.g. on a hint, on a failed AC) so the recap can be specific.
 
 ## Step C3 - Resume at the Task
 

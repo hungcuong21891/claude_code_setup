@@ -1,10 +1,10 @@
-# Surrender Flow (argument: `surrender`)
+# Surrender Flow (flag: `--surrender`)
 
 The ONLY branch where the teacher solves the work. Used when the learner explicitly gives up on the current task and wants to see the answer. Every other branch refuses.
 
 ## Step S1 - Locate the Active Tracker
 
-Same as Continue Flow Step C1 (0 active -> apologize and offer `plan`; 1 -> use; 2+ -> ask which). See `continue-flow.md`.
+Same as Continue Flow Step C1 (0 active -> apologize and offer `--plan`; 1 -> use; 2+ -> ask which). See `continue-flow.md`.
 
 ## Step S2 - Locate the Surrender Target
 
@@ -39,7 +39,7 @@ After solving, deliver a structured walkthrough. NEVER drop the solution and sto
 1. Tick the surrendered task in the day's `Tasks` checklist.
 2. Append to that day's `Struggles` field: `Surrendered <task> on YYYY-MM-DD; reviewed walkthrough; comprehension check: <pass|partial|fail>`.
 3. Save the tracker immediately.
-4. Append two entries to `log.md`: a `surrender-requested` entry (detail: task name) at the start of the surrender flow, and a `surrender-walkthrough-delivered` entry (detail: `<task> — comprehension <pass|partial|fail>`) after Step S4 completes. Save the log.
+4. Append two entries to `log.md`: a `surrender-requested` entry (detail: task name) at the start of the surrender flow, and a `surrender-walkthrough-delivered` entry (detail: `<task> — comprehension <pass|partial|fail>`) after Step S4 completes. Save the log. Commit each entry separately per the Commit Protocol in `../log-format.md` — do NOT batch the two surrender entries into one commit; they bracket the walkthrough and need distinct history.
 
 The surrender is logged honestly — future-you reading the tracker AND the log should see exactly where they leaned on the teacher. If this was the last task of Day `D`, run the Finish-the-Day Gate (`continue-flow.md` Step C4 finalization) as usual and append a `day-completed` log entry.
 

@@ -75,10 +75,31 @@ Action names are lowercase kebab-case. Prefer `note` + descriptive detail over i
 - **Compact detail.** Keep the detail field to one line. If a longer explanation is needed (e.g. surrender comprehension result, struggle narrative), summarize on the log line and put the deep version in the tracker's `Struggles` / `Breakthroughs` field.
 - **No code in the log.** Code lives in the day file or the chat scrollback. The log is a metadata trail, not a transcript.
 - **No re-ordering.** Entries are chronological. If you realize an out-of-order entry slipped in, leave it — append a `correction` entry instead.
+- **Commit after every log update.** Every log append MUST be followed by a git commit covering the log + paired tracker/day-file changes for that event. This makes the audit trail recoverable and gives the learner a per-action git history.
+
+## Commit Protocol
+
+After each log append + paired tracker save, stage and commit the changed files in the plan directory.
+
+- **Stage:** `learning-plans/<slug>/log.md`, `learning-plans/<slug>/tracker.md`, and any day file touched by the same event (e.g. `days/day-NN-<slug>.md` if a section's check question was answered, an exercise submission landed, or struggles were recorded).
+- **Scope:** one commit per log entry. Do not batch multiple log actions into a single commit — the 1:1 mapping is what makes the history useful for retrospectives.
+- **Message format:** conventional commit, scope = goal slug, summary = `<action>: <compact detail>`.
+  - `learn(<goal-slug>): <action> — <detail>`
+  - Examples:
+    - `learn(react-fundamentals): theory-section-cleared — jsx vs html`
+    - `learn(react-fundamentals): exercise-cleared — counter component`
+    - `learn(react-fundamentals): hint-given — rung 2, useState reducer`
+    - `learn(react-fundamentals): day-completed — Day 3, goal met`
+    - `learn(react-fundamentals): surrender-walkthrough-delivered — Day 5 exercise 2, comprehension partial`
+- **Body (optional):** include only when the detail line is insufficient (e.g. plan-adjusted, correction). Keep under 3 lines.
+- **No skipping hooks.** Never use `--no-verify`. If a hook fails, fix the root cause and retry — do not bypass.
+- **No force-push, no amend.** The log is append-only at the git level too. To correct a bad commit, make a NEW commit whose log line is a `correction` action.
+- **Failure handling.** If `git commit` fails (e.g. nothing staged because tracker/log were already clean, or repo is in a detached state), surface the error to the learner in chat and continue the lesson — do not silently skip. Re-run the commit once the underlying issue is resolved.
+- **Non-git environments.** If the plan directory is not inside a git repo, skip the commit step silently and continue. The log + tracker remain the source of truth.
 
 ## Resume Logic
 
-When `continue` runs:
+When `--continue` runs:
 1. Read the tracker first — that decides the resume point.
 2. Read the LAST entry (or last few) in `log.md` for narrative context — it tells the teacher what the previous session ended on (e.g. "ended on hint-given, exercise still open").
 3. Append a new `session-start` entry before doing anything else this session.

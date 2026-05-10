@@ -33,7 +33,7 @@ For EVERY day, populate the `Tasks` checklist at tracker init time with:
 - One entry per exercise.
 - One final `Measurable goal verification` entry.
 
-This is the resume anchor for the `continue` argument. See references/tracker-format.md.
+This is the resume anchor for the `--continue` flag. See references/tracker-format.md.
 
 Each Day heading links to its per-day file under ./days/ so the learner can jump
 straight from the tracker to the lesson content.

@@ -76,7 +76,7 @@ Filenames MUST match the links used in `plan.md`'s Day-by-Day Index. If a filena
 
 ## Tasks Checklist (per-day, REQUIRED)
 
-Each day's `Daily Log` entry contains a `Tasks` checklist. This checklist is what makes mid-day resume possible - the `continue` argument finds the first unchecked task and picks up there.
+Each day's `Daily Log` entry contains a `Tasks` checklist. This checklist is what makes mid-day resume possible - the `--continue` flag finds the first unchecked task and picks up there.
 
 Populate the checklist at tracker init time (Plan Flow Step 5) with:
 - **ONE umbrella `Theory: <day-theme summary>` entry** that covers ALL the day's `### <Concept>` background-theory sections combined. Do NOT create one Theory checkbox per section — long theory checklists bore the learner. The teacher still walks each section inline during delivery, but the tracker only carries one tick.
@@ -108,7 +108,7 @@ Do NOT silently rewrite history. Adjustments are append-only.
 
 ## Resume Logic
 
-When the `continue` argument runs and finds an active tracker:
+When the `--continue` flag runs and finds an active tracker:
 1. Read top-level `Current day` (call it `D`) and the matching plan section in `plan.md`.
 2. Read Day `D`'s `Daily Log` entry - in particular the `Tasks` checklist.
 3. The first `[ ]` task is the resume point. If every task is `[x]`, finalize Day `D` (mark done, increment `Current day`) and re-evaluate.

@@ -1,11 +1,11 @@
-# Plan Flow (argument: `plan`)
+# Plan Flow (flag: `--plan`)
 
 Run Steps 1 -> 5 in order, then hand off to `daily-lesson-delivery.md` for Day 1.
 
 ## Step 1 - Pre-flight: Existing Plans
 
 Look for `learning-plans/<slug>/tracker.md` files in CWD. If any tracker has `Status: active`, ask the learner:
-- (a) Switch to `continue` and resume that plan?
+- (a) Switch to `--continue` and resume that plan?
 - (b) Pause it (set `Status: paused`, append note in `Adjustments`) and start a new plan?
 - (c) Replace it with a new slug suffixed `-v2` / `-v3`?
 
@@ -95,6 +95,6 @@ CRITICAL: For each day in the plan, populate that day's `Tasks` checklist in the
 
 ALSO CRITICAL: Each `### Day N` heading in the Daily Log AND each item in the Progress checklist MUST be a markdown link to that day's per-day file under `./days/`. The link target MUST match the filename created in Step 4. See `../tracker-format.md` (Day Heading Links section).
 
-ALSO create `learning-plans/<goal-slug>/log.md` from `assets/log-template.md`. The log is the append-only chronological audit trail of every action the learner takes — schema and full action-type list in `../log-format.md`. Tracker = state ("now"); log = history ("what got us here"). Pair every tracker save with a log append for the same event. Seed the log with a `session-start` entry (action: `session-start`, detail: `plan flow initialized`) and a `day-started` entry once Day 1 lesson delivery begins.
+ALSO create `learning-plans/<goal-slug>/log.md` from `assets/log-template.md`. The log is the append-only chronological audit trail of every action the learner takes — schema and full action-type list in `../log-format.md`. Tracker = state ("now"); log = history ("what got us here"). Pair every tracker save with a log append for the same event, and commit each log append per the Commit Protocol in `../log-format.md`. Seed the log with a `session-start` entry (action: `session-start`, detail: `plan flow initialized`) and a `day-started` entry once Day 1 lesson delivery begins. Commit the initial plan + tracker + log scaffolding as a single setup commit (`learn(<goal-slug>): plan-initialized — Day 1 ready`); after that, revert to one-commit-per-log-entry.
 
 After init, hand off to `daily-lesson-delivery.md` for Day 1.

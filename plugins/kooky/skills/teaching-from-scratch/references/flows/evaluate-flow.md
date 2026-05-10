@@ -1,10 +1,10 @@
-# Evaluate Flow (argument: `evaluate`)
+# Evaluate Flow (flag: `--evaluate`)
 
 Read-only debrief. NEVER advances `Current day`, ticks tasks, modifies tracker state, or grades the learner-as-person. The output is metric-driven; metrics describe the work product, not the human.
 
 ## Step E1 - Locate the Active Tracker
 
-Same as Continue Flow Step C1 (0 active -> apologize and offer `plan`; 1 -> use; 2+ -> ask which). See `continue-flow.md`.
+Same as Continue Flow Step C1 (0 active -> apologize and offer `--plan`; 1 -> use; 2+ -> ask which). See `continue-flow.md`.
 
 ## Step E2 - Determine the Completed-Days Set
 
@@ -150,8 +150,8 @@ Append ONE entry to `log.md`:
 ```
 YYYY-MM-DD HH:MM | Day <current_day> | evaluation-rendered | scope=Days 1..<max(C)>; pace-delta=<delta>d; hint=<n>/day; first-submit-AC=<pct>%; surrenders=<n>; comp-acc=<pct>%
 ```
-Do NOT modify the tracker. Do NOT write any other file.
+Do NOT modify the tracker. Do NOT write any other file. Commit the log entry per the Commit Protocol in `../log-format.md` (`learn(<goal-slug>): evaluation-rendered — Days 1..N`).
 
 ## Step E7 - Continuation Prompt
 
-Ask the learner: "Continue from where you left off (`continue`), or stop here?" Default to stop if no answer.
+Ask the learner: "Continue from where you left off (`--continue`), or stop here?" Default to stop if no answer.
