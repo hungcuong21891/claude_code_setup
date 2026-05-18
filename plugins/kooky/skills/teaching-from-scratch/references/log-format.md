@@ -48,6 +48,7 @@ Time uses 24-hour local time. If timezone matters across sessions, append the of
 | `session-end` | When the learner stops or runs out of time | last task touched |
 | `day-started` | When `Status: in-progress` is first set on a day | day theme |
 | `theory-html-rendered` | After the per-day theory HTML supplement is written and opened in full at chat-walk depth (one entry per render; idempotent skip on resume) | relative path to the rendered html file |
+| `theory-refreshed` | After a context7 / WebFetch freshness check found stale content in the day file and the affected `### <Concept>` section was revised in place before walking it | concept name + brief delta (e.g. `lifespan events: replaced on_event deprecation`) |
 | `theory-html-section-filled` | Exception-path only: when a single section's HTML body is rewritten mid-day to incorporate a learner-asked clarifier added during the inline walk | section number + concept name |
 | `theory-section-cleared` | After each `### <Concept>` section's check question is answered correctly | concept name (matches the day file's section heading) |
 | `theory-task-cleared` | When the umbrella Theory checkbox is ticked (last section answered) | day theme summary |

@@ -42,7 +42,7 @@ NEVER fudge a plan to fit an unrealistic timeframe - it sets the learner up to f
 
 ## Step 4 - Design the Day-by-Day Plan (split into per-day files)
 
-Methodology in `../plan-design-guide.md`. Output is a SMALL DIRECTORY, not a single monolithic file:
+Methodology in `../plan-design-guide.md`. **Before authoring any day file that covers a specific library/framework/SDK/API/CLI/cloud service, run a docs lookup (context7 first, WebFetch fallback) for that day's topic — see Principle 6.7.** Output is a SMALL DIRECTORY, not a single monolithic file:
 
 ```
 learning-plans/<goal-slug>/

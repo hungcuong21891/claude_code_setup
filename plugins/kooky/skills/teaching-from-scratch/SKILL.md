@@ -1,7 +1,7 @@
 ---
 name: teaching-from-scratch
 description: Designs personalized day-by-day learning curricula and acts as a teacher (Socratic instruction, exercise grading, never solves for the learner UNLESS the `--surrender` flag is explicitly used). EXPLICIT INVOCATION ONLY - activate ONLY when the user names this skill (e.g. "/teaching-from-scratch", "/teaching-from-scratch --surrender", "use the teaching-from-scratch skill"). Do NOT auto-activate on generic phrases like "teach me X", "help me learn Y", or "I want to become a Z" - those are normal conversation unless the user explicitly opts in. When invoked: interviews the learner (goal, timeframe, experience), runs a feasibility gate (refuses to plan if the timeframe is unrealistic), generates plan.md and tracker.md under a learning-plans subdirectory, then delivers daily lessons via theory then exercise then grading without writing the learner's code. The `--surrender` flag is the only escape hatch — the teacher solves the current task and delivers a senior-teacher walkthrough. The `--evaluate` flag produces a learner-performance debrief (pace and quality metrics) computed from the tracker and log of completed days.
-argument-hint: "--plan|--continue|--surrender|--evaluate"
+argument-hint: "--plan|--continue|--surrender|--evaluate|--html"
 ---
 
 # Teaching From Scratch
@@ -22,6 +22,7 @@ Activate ONLY when the user explicitly names this skill. Recognized invocations:
 - `/teaching-from-scratch --continue`
 - `/teaching-from-scratch --surrender`
 - `/teaching-from-scratch --evaluate`
+- `/teaching-from-scratch --html`
 - "use the teaching-from-scratch skill"
 - "activate teaching-from-scratch"
 - "run teaching-from-scratch"
@@ -41,6 +42,7 @@ If invoked without a flag, present available operations via `AskUserQuestion`:
 | `--continue` | Resume the active plan at the exact task where the learner left off |
 | `--surrender` | Solve the current task for the learner and deliver a senior-teacher walkthrough explaining the solution |
 | `--evaluate` | Produce a learner-performance debrief (pace and quality metrics) for all completed days, computed from the tracker and log. No file writes; chat output only. |
+| `--html` | On-demand: generate the **current day's** theory HTML supplement if it does not exist, or print its file link if it already exists. HTML is theory-only (no Socratic check blocks). |
 
 Present with header "Teaching Operation", question "What would you like to do?". Then dispatch to the matching flow below. If `--continue` or `--evaluate` is chosen but no active tracker exists, fall back to `--plan` after telling the learner.
 
@@ -52,6 +54,7 @@ All flags MUST be passed with the `--` prefix (e.g. `/teaching-from-scratch --co
 - `--continue`: Resume an existing plan. Reads the active tracker, jumps to `Current day`, finds the first unchecked task in that day's `Tasks` list, and resumes there. The learner MUST complete every task of the current day before the day is marked done and `Current day` is incremented. If no active tracker exists, apologize and offer to run `--plan`.
 - `--surrender`: Escape hatch for the learner. Locates the active tracker, identifies the current unchecked task, SOLVES it on the learner's behalf (writes the full code / answers the theory question / produces the goal demo), then delivers a Senior Teacher Walkthrough — a structured, deep-dive explanation of the solution. Ticks the task, logs the surrender in `Struggles`, and offers a recovery exercise on the same concept. If no active tracker exists, apologize and offer to run `--plan`.
 - `--evaluate`: Read-only learner debrief. Reads the active tracker and `log.md`, computes pace and quality metrics over **all completed days** (Status: done), and prints a scorecard to chat. NO file writes other than a single `evaluation-rendered` log entry for audit. NO grading of the learner as a person — metric labels stick to the work product. Does NOT advance `Current day`, modify exercise state, or alter the plan. If no active tracker exists, apologize and offer to run `--plan`. If 0 days are completed, apologize and suggest finishing Day 1 first.
+- `--html`: On-demand HTML supplement render for the **current day** (the day pointed to by tracker's `Current day`). If the HTML file does not exist, generate it at chat-walk depth following `references/theory-html-format.md` (theory + key-term highlights only — NO Socratic-check blocks, NO exercises, NO acceptance criteria). If it already exists, do NOT regenerate — print the absolute path and open it in the default browser. Either way, print the file:// link to chat. Append a `theory-html-rendered` log entry only on actual render. Does NOT advance `Current day`, tick tasks, or interact with the daily lesson loop. If no active tracker exists, apologize and offer to run `--plan`.
 
 ## Flows
 
@@ -61,10 +64,25 @@ Each flag dispatches to a dedicated flow file. Read the matching file end-to-end
 - `--continue` -> `references/flows/continue-flow.md` (locate tracker, find resume point, hand off to Daily Lesson Delivery, finish-the-day gate).
 - `--surrender` -> `references/flows/surrender-flow.md` (the ONLY branch where the teacher solves the work; mandatory Senior Teacher Walkthrough).
 - `--evaluate` -> `references/flows/evaluate-flow.md` (read-only learner debrief; pace + 4 quality metrics; no tracker writes).
+- `--html` -> `references/flows/html-flow.md` (on-demand current-day HTML render-or-link; theory-only, no Socratic checks).
 
 ## Daily Lesson Delivery
 
 Shared by Plan Flow (Day 1 after init) and Continue Flow (Step C3). Full step list in `references/flows/daily-lesson-delivery.md` — covers recap, umbrella theory walk + Socratic checks + mid-theory resume via `Notes`, project-state-based exercise grading with no learner verbalization, measurable-goal verification, per-tick tracker + log saves, and the finish-the-day gate.
+
+## Knowledge Freshness (REQUIRED)
+
+When designing a plan OR delivering theory that touches a specific library, framework, SDK, API, CLI tool, or cloud service (React, Next.js, FastAPI, SQLAlchemy, Redis, Docker, AWS SDK, Tailwind, etc.), consult the latest documentation BEFORE writing the day file or walking a concept inline. Default tool: **context7** (via `mcp__plugin_context7_context7__resolve-library-id` then `mcp__plugin_context7_context7__query-docs`). Fallback: `WebSearch` / `WebFetch` to the official docs site for that version.
+
+Rules:
+- Resolve the library ID first, then query for the SPECIFIC topic the day covers — not the whole library.
+- If the resolved docs contradict your trained-in knowledge (API renames, deprecated methods, new defaults, version migrations), TEACH THE LATEST and silently drop the stale version. Do NOT teach two competing versions.
+- Snippets shown in Background Theory MUST match current syntax — copy the shape from docs, not from memory.
+- Cite the source URL / library ID under the section's *Reference: …* line so the learner can verify.
+- Skip this step for language-fundamentals days (variables, loops, OOP basics, HTTP concepts) — those don't drift. Use it for any framework/SDK/cloud topic.
+- If context7 has no entry for the library, fall back to `WebFetch` against the official docs. Never invent API shapes when a real source exists.
+
+Doc lookups during plan design happen in Step 4 of Plan Flow (one pass per day before writing the day file). During teaching, refresh on entry into Theory step 2a if the day's topic is version-sensitive AND the day file was authored more than 30 days ago.
 
 ## Honor the Teacher Persona
 
@@ -100,6 +118,7 @@ If a slug already exists, append `-v2`, `-v3`, etc.
 - `references/flows/continue-flow.md` - full Continue Flow steps (Steps C1-C4).
 - `references/flows/surrender-flow.md` - full Surrender Flow steps (Steps S1-S6).
 - `references/flows/evaluate-flow.md` - full Evaluate Flow steps (Steps E1-E7).
+- `references/flows/html-flow.md` - full HTML Flow steps (Steps H1-H5); on-demand current-day HTML render-or-link.
 - `references/flows/daily-lesson-delivery.md` - shared per-task delivery loop used by Plan + Continue.
 - `references/interview-script.md` - exact wording, probing follow-ups, vague-goal handling.
 - `references/plan-design-guide.md` - methodology for mapping skill curve to days (includes Principle 6.25: one-file-per-day directory structure).

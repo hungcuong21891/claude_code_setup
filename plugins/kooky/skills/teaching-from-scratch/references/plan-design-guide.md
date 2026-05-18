@@ -175,6 +175,22 @@ The test for "is this a real engineering artifact": would a teammate on this pro
 
 A plan that ships forbidden write-up exercises is INCOMPLETE. Revise before saving.
 
+## Principle 6.7 - Consult Latest Docs Before Writing Theory
+
+Plans rot. A day file authored against React 17 lifecycles, FastAPI's deprecated `@app.on_event`, SQLAlchemy 1.x sessions, or a removed AWS SDK method actively MIS-teaches the learner. To prevent this:
+
+For every day file whose topic involves a specific library, framework, SDK, API, CLI tool, or cloud service, perform a docs lookup BEFORE writing the Background Theory section:
+
+1. **Primary tool: context7.** Call `mcp__plugin_context7_context7__resolve-library-id` with the library name (e.g. `react`, `fastapi`, `sqlalchemy`, `redis`, `next.js`). Then call `mcp__plugin_context7_context7__query-docs` with the resolved ID and the day's SPECIFIC topic (e.g. `lifespan events`, `async session`, `sorted sets`) — not the whole library.
+2. **Fallback: WebFetch.** If context7 returns no match, fetch the official docs page for the topic at the current stable version.
+3. **Compare against your trained-in knowledge.** If the docs show a renamed API, a new default, a deprecated pattern, or a version migration, TEACH THE LATEST. Do not present two competing versions; the learner needs one correct mental model, not a history lesson.
+4. **Copy snippet shapes from the docs, not from memory.** The 1-2 code snippets in each `### <Concept>` section must compile against the current release. Paste-and-adapt from the doc example.
+5. **Cite the source.** The closing *Reference: <link>* line under each section MUST point at the page you actually read — version-pinned if the docs site supports it.
+
+Skip this principle for language-fundamentals days that don't drift: variables, loops, OOP, recursion, HTTP basics, SQL basics. Apply it for ANY framework/SDK/cloud day.
+
+A day file written from memory on a versioned library, with no recent docs lookup, is INCOMPLETE — revise before saving.
+
 ## Principle 7 - Self-Check Without Spoilers
 
 Each day's self-check tells the learner HOW to know they got it right, without giving the answer. Patterns:

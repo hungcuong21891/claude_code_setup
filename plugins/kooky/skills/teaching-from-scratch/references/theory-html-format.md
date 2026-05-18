@@ -24,7 +24,7 @@ The `days/html/` directory is created on first render. Filename mirrors the sour
 
 ## Content Rules
 
-The HTML contains ONLY theory + Socratic checks. NEVER exercises, NEVER acceptance criteria, NEVER measurable-goal text, NEVER solutions.
+The HTML contains ONLY theory prose. **NEVER Socratic-check blocks.** NEVER exercises, NEVER acceptance criteria, NEVER measurable-goal verification text, NEVER solutions. Socratic checks happen exclusively in chat — they do NOT appear in the HTML supplement.
 
 Order of sections in the rendered page:
 1. **Header** — day number, day title (from the `# Day NN — <Title>` line), phase label, measurable goal as a single italic line for context only (no checkboxes).
@@ -33,21 +33,11 @@ Order of sections in the rendered page:
    - **Prose written at chat-walk depth, not source-`.md` depth.** The source `.md` is the *seed*; the HTML body must include the same expansions, analogies, framings, and gotchas the teacher would deliver live in chat for this section. If the chat walk would add a "two doors" framing, a comparison to EF Core, an extra paragraph warning about a downstream consequence — bake those into the HTML at render time. The HTML and the chat are two views of the **same** explanation, not two different summaries of the source `.md`.
    - Code blocks rendered as `<pre><code>` with monospace styling (no syntax-highlighter dependency). Include the same code blocks the teacher will use in chat (often a superset of the source `.md`'s code blocks).
    - Reference link rendered as a small `<a>` with text "Further reading" if present.
-   - **Socratic Check callout box** at the end — the **exact** question(s) the teacher will ask in chat for this section. Include any code snippet or scenario the question depends on. Marked "Answer in chat — the teacher will walk you through this section first."
-3. **Footer** — single sentence: "Read alongside the chat walkthrough. The teacher will Socratic-check each section live."
+3. **Footer** — single sentence: "Theory supplement. Read alongside the chat walkthrough."
 
 **Depth-parity rule (mandatory).** Before writing the file, draft each section's chat-walk content as if you were about to deliver it in chat — including the framing, the analogies, the gotchas, the "today's practical fact" anchor. Then commit that drafted content to the HTML. The yardstick: a learner who only reads the HTML offline reaches the same level of understanding as a learner who only saw the chat. If a section's HTML reads thinner than the chat would, the section is under-rendered and must be expanded before the file is opened.
 
 **Mid-day clarifications.** If a learner asks a clarifying question in chat during the inline walk and the answer adds substantive new framing the up-front render did not anticipate, the teacher MAY rewrite that section's HTML body to incorporate it (and append a `theory-html-section-filled` log entry). This is exception-only — the default is one-shot full render up-front.
-
-## Socratic Check Composition
-
-The Socratic-check box mirrors the **exact question** asked in chat for that section, including any code snippets or scenario setups the teacher used. Filled in at the same time as the section body (after delivery in chat).
-
-Question rules:
-- Apply-the-rule, NOT recall ("Given this snippet, identify X" — not "What is X?").
-- Same difficulty as the inline check (the HTML is not a harder version).
-- Plain text. No solution shown. No hint shown.
 
 ## Styling
 
@@ -58,7 +48,6 @@ Self-contained HTML. Inline `<style>` only. No external CSS, no CDN, no JS depen
 Baseline styles required:
 - Dark background (~`#11161d`) with light body text (~`#dde3ec`); readable serif body (max-width ~72ch)
 - Monospace code blocks on a slightly lighter dark surface with a subtle border
-- Socratic Check boxes visually distinct (left border accent + slightly raised dark surface + gold label)
 - Print-friendly: dark→light auto via `@media print` (no fixed-position elements)
 
 Copy the scaffold from `assets/theory-html-template.html` verbatim. Do not invent a new palette per day.
@@ -90,7 +79,7 @@ If open fails (e.g. headless env), print the absolute path in chat and continue 
 
 ## Logging
 
-- Append a `theory-html-rendered` entry to `log.md` when the full HTML is written (one entry per render). Detail = relative HTML path.
+- Append a `theory-html-rendered` entry to `log.md` when the full HTML is written (one entry per render). Detail = relative HTML path; append " (via --html flag)" when triggered by the `--html` flow.
 - Append a `theory-html-section-filled` entry only on the exception-path mid-day rewrite of a single section. Detail = section number + concept name. See `log-format.md`.
 
 No tracker mutation — rendering does not tick any checkbox, update `Notes`, or change `Current day`.
