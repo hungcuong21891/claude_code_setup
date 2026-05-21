@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Unity Optimization Report — __PROJECT_NAME__</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #161a22;
+    --panel-2: #1d2230;
+    --border: #2a3142;
+    --text: #e6e9ef;
+    --muted: #8a93a6;
+    --accent: #6aa9ff;
+    --critical: #ff4d4f;
+    --high: #ff9f43;
+    --medium: #ffd166;
+    --low: #4caf50;
+    --code-bg: #0b0d12;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f6f7fa;
+      --panel: #ffffff;
+      --panel-2: #f0f2f7;
+      --border: #d9dde6;
+      --text: #1a1d24;
+      --muted: #5b6371;
+      --code-bg: #eef0f5;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  header {
+    padding: 24px 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+  }
+  h1 { margin: 0 0 6px; font-size: 22px; }
+  .meta { color: var(--muted); font-size: 13px; }
+  .meta span { margin-right: 16px; }
+  main { padding: 24px 32px; max-width: 1400px; margin: 0 auto; }
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: transform 0.08s ease, border-color 0.12s ease;
+    user-select: none;
+  }
+  .card:hover { transform: translateY(-1px); border-color: var(--accent); }
+  .card.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+  .card .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+  .card .count { font-size: 28px; font-weight: 700; margin-top: 4px; }
+  .card.critical .count { color: var(--critical); }
+  .card.high .count { color: var(--high); }
+  .card.medium .count { color: var(--medium); }
+  .card.low .count { color: var(--low); }
+  .card.total .count { color: var(--accent); }
+  .controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .controls input[type="search"], .controls select {
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 14px;
+    min-width: 220px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 13px;
+  }
+  th, td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  th {
+    background: var(--panel-2);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr.row-detail-open { background: var(--panel-2); }
+  td.id { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 600; white-space: nowrap; }
+  td.file { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; word-break: break-all; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .badge.critical { background: rgba(255, 77, 79, 0.15); color: var(--critical); border: 1px solid var(--critical); }
+  .badge.high { background: rgba(255, 159, 67, 0.15); color: var(--high); border: 1px solid var(--high); }
+  .badge.medium { background: rgba(255, 209, 102, 0.15); color: var(--medium); border: 1px solid var(--medium); }
+  .badge.low { background: rgba(76, 175, 80, 0.15); color: var(--low); border: 1px solid var(--low); }
+  .cat {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  details.row-detail { margin-top: 6px; }
+  details.row-detail summary { color: var(--accent); cursor: pointer; font-size: 12px; }
+  pre.snippet {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px;
+    margin: 8px 0 0;
+    overflow-x: auto;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  .empty {
+    padding: 40px;
+    text-align: center;
+    color: var(--muted);
+    font-style: italic;
+  }
+  footer {
+    padding: 16px 32px;
+    color: var(--muted);
+    font-size: 12px;
+    border-top: 1px solid var(--border);
+    margin-top: 32px;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Unity Optimization Report</h1>
+  <div class="meta">
+    <span><strong>Project:</strong> __PROJECT_NAME__</span>
+    <span><strong>Unity:</strong> __UNITY_VERSION__</span>
+    <span><strong>Pipeline:</strong> __RENDER_PIPELINE__</span>
+    <span><strong>Generated:</strong> __GENERATED_AT__</span>
+  </div>
+</header>
+
+<main>
+  <section class="summary" id="summary">
+    <div class="card total" data-filter="ALL"><div class="label">Total</div><div class="count" id="count-total">0</div></div>
+    <div class="card critical" data-filter="CRITICAL"><div class="label">Critical</div><div class="count" id="count-critical">__COUNTS_CRITICAL__</div></div>
+    <div class="card high" data-filter="HIGH"><div class="label">High</div><div class="count" id="count-high">__COUNTS_HIGH__</div></div>
+    <div class="card medium" data-filter="MEDIUM"><div class="label">Medium</div><div class="count" id="count-medium">__COUNTS_MEDIUM__</div></div>
+    <div class="card low" data-filter="LOW"><div class="label">Low</div><div class="count" id="count-low">__COUNTS_LOW__</div></div>
+  </section>
+
+  <section class="controls">
+    <input type="search" id="search" placeholder="Search file, ID, or issue text..." />
+    <select id="category">
+      <option value="ALL">All categories</option>
+      <option value="code-scripting">Code &amp; Scripting</option>
+      <option value="physics">Physics</option>
+      <option value="rendering">Rendering</option>
+      <option value="ui-canvas">UI / Canvas</option>
+      <option value="assets">Assets</option>
+      <option value="build-settings">Build Settings</option>
+    </select>
+  </section>
+
+  <table id="issues-table">
+    <thead>
+      <tr>
+        <th data-sort="id">ID</th>
+        <th data-sort="severity">Severity</th>
+        <th data-sort="category">Category</th>
+        <th data-sort="file">File : Line</th>
+        <th data-sort="issue">Issue</th>
+      </tr>
+    </thead>
+    <tbody id="issues-body"></tbody>
+  </table>
+  <div id="empty" class="empty" style="display:none;">No issues match the current filters.</div>
+</main>
+
+<footer>
+  Optimize Unity skill. Apply fixes via Claude or open <code>plans/reports/optimize-unity-summary-*.md</code> for next steps.
+</footer>
+
+<script id="issues-data" type="application/json">__ISSUES_JSON__</script>
+<script>
+(function () {
+  const SEVERITY_ORDER = { CRITICAL: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
+  const raw = document.getElementById('issues-data').textContent.trim();
+  const issues = raw ? JSON.parse(raw) : [];
+
+  const state = { severity: 'ALL', category: 'ALL', query: '', sortKey: 'severity', sortDir: 1 };
+
+  const body = document.getElementById('issues-body');
+  const empty = document.getElementById('empty');
+  const totalEl = document.getElementById('count-total');
+  totalEl.textContent = issues.length;
+
+  function severityBadge(sev) {
+    return '<span class="badge ' + sev.toLowerCase() + '">' + sev + '</span>';
+  }
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function renderRow(issue) {
+    const fileLine = issue.line ? issue.file + ':' + issue.line : issue.file;
+    let detail = '';
+    if (issue.snippet || issue.fix) {
+      detail = '<details class="row-detail"><summary>Show snippet &amp; fix</summary>';
+      if (issue.snippet) detail += '<pre class="snippet">' + escapeHtml(issue.snippet) + '</pre>';
+      if (issue.fix) detail += '<div style="margin-top:8px;"><strong>Fix:</strong> ' + escapeHtml(issue.fix) + '</div>';
+      detail += '</details>';
+    }
+    return '<tr>'
+      + '<td class="id">' + escapeHtml(issue.id) + '</td>'
+      + '<td>' + severityBadge(issue.severity) + '</td>'
+      + '<td><span class="cat">' + escapeHtml(issue.category) + '</span></td>'
+      + '<td class="file">' + escapeHtml(fileLine) + '</td>'
+      + '<td>' + escapeHtml(issue.issue) + detail + '</td>'
+      + '</tr>';
+  }
+
+  function applyFilters() {
+    const q = state.query.toLowerCase();
+    const filtered = issues.filter(i => {
+      if (state.severity !== 'ALL' && i.severity !== state.severity) return false;
+      if (state.category !== 'ALL' && i.category !== state.category) return false;
+      if (q) {
+        const hay = (i.id + ' ' + i.file + ' ' + i.issue + ' ' + (i.snippet || '')).toLowerCase();
+        if (hay.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+
+    filtered.sort((a, b) => {
+      let av, bv;
+      if (state.sortKey === 'severity') {
+        av = SEVERITY_ORDER[a.severity] ?? 99;
+        bv = SEVERITY_ORDER[b.severity] ?? 99;
+      } else {
+        av = String(a[state.sortKey] || '').toLowerCase();
+        bv = String(b[state.sortKey] || '').toLowerCase();
+      }
+      if (av < bv) return -1 * state.sortDir;
+      if (av > bv) return 1 * state.sortDir;
+      return 0;
+    });
+
+    body.innerHTML = filtered.map(renderRow).join('');
+    empty.style.display = filtered.length === 0 ? 'block' : 'none';
+  }
+
+  // Severity card filters
+  document.querySelectorAll('.card[data-filter]').forEach(card => {
+    card.addEventListener('click', () => {
+      const f = card.getAttribute('data-filter');
+      state.severity = state.severity === f ? 'ALL' : f;
+      document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+      if (state.severity !== 'ALL') card.classList.add('active');
+      applyFilters();
+    });
+  });
+
+  // Search
+  document.getElementById('search').addEventListener('input', e => {
+    state.query = e.target.value;
+    applyFilters();
+  });
+
+  // Category dropdown
+  document.getElementById('category').addEventListener('change', e => {
+    state.category = e.target.value;
+    applyFilters();
+  });
+
+  // Sort headers
+  document.querySelectorAll('th[data-sort]').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.getAttribute('data-sort');
+      if (state.sortKey === key) state.sortDir *= -1;
+      else { state.sortKey = key; state.sortDir = 1; }
+      applyFilters();
+    });
+  });
+
+  applyFilters();
+})();
+</script>
+</body>
+</html>
