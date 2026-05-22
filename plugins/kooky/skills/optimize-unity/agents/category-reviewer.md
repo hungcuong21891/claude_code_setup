@@ -30,8 +30,8 @@ INPUTS
 - Severity rules: {{SEVERITY_PATH}}   ← consult while assigning hints
 
 TASK
-1. Read the issue catalog at {{REFERENCE_PATH}} fully. Each issue has an ID (e.g., C-01, P-03), detection pattern, why it matters, severity hint, and fix sketch.
-2. For each issue ID applicable to a {{PROJECT_TYPE}} / {{RENDER_PIPELINE}} project on {{BUILD_TARGETS}}, run the detection pattern against {{PROJECT_ROOT}}.
+1. Read the issue catalog at {{REFERENCE_PATH}} fully. Each issue has a **Catalog ID** (e.g., C-01, P-03, R-07, U-04, A-02, B-01), detection pattern, why it matters, severity hint, and fix sketch. The catalog is the **only** scope for this review.
+2. For each Catalog ID applicable to a {{PROJECT_TYPE}} / {{RENDER_PIPELINE}} project on {{BUILD_TARGETS}}, run the detection pattern against {{PROJECT_ROOT}}.
 3. Use Glob / Grep / Read tools. Skip these paths:
    - {{PROJECT_ROOT}}/Library/**
    - {{PROJECT_ROOT}}/Temp/**
@@ -40,16 +40,21 @@ TASK
    - {{PROJECT_ROOT}}/Assets/Plugins/**         (third-party)
    - {{PROJECT_ROOT}}/Assets/**/ThirdParty/**
    - {{PROJECT_ROOT}}/Assets/**/Editor/**       (only flag at LOW)
-4. For each match, capture: file path (relative to project root), line(s), 3-line code/YAML excerpt, the issue ID it matches, and the severity hint from the catalog.
+4. For each match, capture: **Catalog ID it maps to** (mandatory, exact format from catalog like `C-01`), file path (relative to project root), line(s), 3-line code/YAML excerpt, and the severity hint from the catalog.
 5. Apply the severity rules from {{SEVERITY_PATH}} to refine the hint.
 6. Write the findings to {{REPORT_PATH}}. Use the schema below.
+
+SCOPE — CATALOG-ONLY (HARD RULE)
+- A finding is reportable **if and only if** it matches a specific Catalog ID in {{REFERENCE_PATH}}.
+- If you spot something suspicious that does NOT match any catalog ID, **drop it silently**. Do not list it. Do not invent new IDs. Do not include an "Unclassified observations" section.
+- If you are unsure which catalog ID a candidate maps to, **drop it**. Better to miss a fuzzy finding than to pollute the report with unmapped noise.
+- Every finding row in the report MUST carry a non-empty `Catalog: {ID}` field that exactly matches an ID from the catalog.
 
 CONSTRAINTS
 - READ-ONLY. No Edit, Write (except the report), Bash, git, or MCP write-tool calls.
 - Do NOT scan files outside {{PROJECT_ROOT}}.
 - Cap findings at 50 per category. If more found, keep the top 50 by severity then list the count of skipped at the bottom.
 - Sacrifice grammar for brevity. The aggregator parses the markdown.
-- Do not invent issues not in the catalog. If you spot something novel, list it under an "Unclassified observations" section at the very end — do not assign an OPT-id.
 
 REPORT SCHEMA ({{REPORT_PATH}})
 
@@ -60,7 +65,8 @@ Findings: {N total}  |  Critical: {n}  |  High: {n}  |  Medium: {n}  |  Low: {n}
 
 ## Findings
 
-### CR-001  [SEVERITY]  {ISSUE-ID}  {short title}
+### CR-001  [SEVERITY]  Catalog: C-01  {short title}
+- Catalog: `C-01`   ← MUST exactly match an ID in {{REFERENCE_PATH}}
 - File: `Assets/Path/To/File.cs:42-45`
 - Issue: {one-line description}
 - Evidence:
@@ -71,11 +77,8 @@ Findings: {N total}  |  Critical: {n}  |  High: {n}  |  Medium: {n}  |  Low: {n}
 - Rationale: {why this severity — cite a rule from severity-classification.md}
 - Logic-risk: {one of: `low` (mechanical/idempotent, e.g., cache GetComponent, CompareTag), `medium` (callers may depend on shape, e.g., NonAlloc buffer size), `high` (behavior-changing, e.g., SetActive→Canvas.enabled, sync→async load, real-time→baked light)}. If `medium` or `high`, list the **specific concern** the main agent must verify before editing (e.g., "OnDisable on panel script writes save state — must run", "callers downstream of LoadScene expect sync"). The main agent uses this to drive its logic-preservation gate.
 
-### CR-002  [SEVERITY]  ...
+### CR-002  [SEVERITY]  Catalog: C-05  ...
 (repeat)
-
-## Unclassified observations
-(only if applicable; bullet list, one line each)
 
 ## Skipped
 (only if cap hit; "N additional findings of this type at lower severity")

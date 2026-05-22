@@ -186,7 +186,7 @@
   </section>
 
   <section class="controls">
-    <input type="search" id="search" placeholder="Search file, ID, or issue text..." />
+    <input type="search" id="search" placeholder="Search file, ID, catalog, or issue text..." />
     <select id="category">
       <option value="ALL">All categories</option>
       <option value="code-scripting">Code &amp; Scripting</option>
@@ -202,6 +202,7 @@
     <thead>
       <tr>
         <th data-sort="id">ID</th>
+        <th data-sort="catalogId">Catalog</th>
         <th data-sort="severity">Severity</th>
         <th data-sort="category">Category</th>
         <th data-sort="file">File : Line</th>
@@ -250,8 +251,10 @@
       if (issue.fix) detail += '<div style="margin-top:8px;"><strong>Fix:</strong> ' + escapeHtml(issue.fix) + '</div>';
       detail += '</details>';
     }
+    const catalogId = issue.catalogId || '';
     return '<tr>'
       + '<td class="id">' + escapeHtml(issue.id) + '</td>'
+      + '<td class="id">' + escapeHtml(catalogId) + '</td>'
       + '<td>' + severityBadge(issue.severity) + '</td>'
       + '<td><span class="cat">' + escapeHtml(issue.category) + '</span></td>'
       + '<td class="file">' + escapeHtml(fileLine) + '</td>'
@@ -265,7 +268,7 @@
       if (state.severity !== 'ALL' && i.severity !== state.severity) return false;
       if (state.category !== 'ALL' && i.category !== state.category) return false;
       if (q) {
-        const hay = (i.id + ' ' + i.file + ' ' + i.issue + ' ' + (i.snippet || '')).toLowerCase();
+        const hay = (i.id + ' ' + (i.catalogId || '') + ' ' + i.file + ' ' + i.issue + ' ' + (i.snippet || '')).toLowerCase();
         if (hay.indexOf(q) === -1) return false;
       }
       return true;

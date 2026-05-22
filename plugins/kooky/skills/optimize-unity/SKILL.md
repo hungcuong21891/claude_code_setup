@@ -38,6 +38,8 @@ Spawn **6 reviewer agents in a single message** (subagent_type: `general-purpose
 
 Each reviewer writes one report to `{project}/plans/reports/optimize-unity-{category}-{date}.md` using the schema in `agents/category-reviewer.md` (issue IDs like `C-01`, `P-03`, `R-07`, file path + line + snippet + suggested fix).
 
+**Catalog-only scope (hard rule).** Every finding MUST map 1:1 to a Catalog ID defined in the matching `references/category-*.md`. Reviewers drop any candidate that does not map — no "unclassified" / "miscellaneous" / novel-pattern entries. The aggregator must reject any reviewer row missing a `Catalog:` field. If a reviewer report contains rows without a Catalog ID, treat them as invalid and exclude them from the aggregated table.
+
 **Do NOT let reviewers edit any source files.** They are read-only — they only emit reports.
 
 ### Phase 3 — Aggregate & Classify
@@ -46,19 +48,22 @@ After all 6 reviewers complete:
 
 1. Read every report.
 2. Apply severity rules from `references/severity-classification.md` — use the issue-to-severity quick map first, then apply override rules (hot-path promotion, layer-matrix promotion, etc.).
-3. Deduplicate — same issue ID + same file = one entry. Group multiple instances by file.
-4. Build a single summary table:
+3. Deduplicate — same Catalog ID + same file = one entry. Group multiple instances by file.
+4. **Validate every row against the catalog.** Drop any row that is missing a Catalog ID or whose Catalog ID is not present in the matching `references/category-*.md`. The aggregated report must NOT contain any non-catalog findings.
+5. Build a single summary table. The `Catalog` column is mandatory and points to the exact ID in `references/category-{category}.md`.
 
 ```
-| ID    | Severity | File:Line                          | Issue                          | Fix Source        |
-|-------|----------|------------------------------------|--------------------------------|-------------------|
-| C-01  | CRITICAL | Assets/Scripts/Enemy.cs:42         | GetComponent in Update         | fix-patterns#C-01 |
-| P-03  | HIGH     | Assets/Prefabs/Bullet.prefab       | MeshCollider on dynamic body   | fix-patterns#P-03 |
+| ID    | Catalog | Severity | File:Line                          | Issue                          | Fix Source        |
+|-------|---------|----------|------------------------------------|--------------------------------|-------------------|
+| C-01  | C-01    | CRITICAL | Assets/Scripts/Enemy.cs:42         | GetComponent in Update         | fix-patterns#C-01 |
+| P-03  | P-03    | HIGH     | Assets/Prefabs/Bullet.prefab       | MeshCollider on dynamic body   | fix-patterns#P-03 |
 ...
 ```
 
-5. Cap the CRITICAL section — if more than 15 entries, demote the lowest-impact ones to HIGH per the cap rule. Per-frame GC allocs and hot-path GetComponent calls always stay critical.
-6. **Generate HTML report.** Read the template at `assets/report-template.html`, substitute placeholders, write to `{project}/plans/reports/optimize-unity-report-{date}.html`. Placeholders:
+When the reviewer's local ID equals the Catalog ID (the common case) both columns will match — that is expected. If a reviewer used a category-prefixed local ID (e.g. `CR-001`), keep the local ID in the `ID` column and put the catalog reference (e.g. `C-01`) in the `Catalog` column.
+
+6. Cap the CRITICAL section — if more than 15 entries, demote the lowest-impact ones to HIGH per the cap rule. Per-frame GC allocs and hot-path GetComponent calls always stay critical.
+7. **Generate HTML report.** Read the template at `assets/report-template.html`, substitute placeholders, write to `{project}/plans/reports/optimize-unity-report-{date}.html`. Placeholders:
 
    - `__PROJECT_NAME__` — folder name of project root
    - `__UNITY_VERSION__` — from `ProjectVersion.txt`
@@ -67,8 +72,9 @@ After all 6 reviewers complete:
    - `__COUNTS_CRITICAL__`, `__COUNTS_HIGH__`, `__COUNTS_MEDIUM__`, `__COUNTS_LOW__` — integers
    - `__ISSUES_JSON__` — JSON array (one object per issue). Schema:
      ```json
-     [{"id":"C-01","severity":"CRITICAL","category":"code-scripting","file":"Assets/Scripts/Enemy.cs","line":42,"issue":"GetComponent called in Update","snippet":"void Update(){ GetComponent<Rigidbody>().AddForce(...); }","fix":"Cache reference in Awake/Start"}]
+     [{"id":"C-01","catalogId":"C-01","severity":"CRITICAL","category":"code-scripting","file":"Assets/Scripts/Enemy.cs","line":42,"issue":"GetComponent called in Update","snippet":"void Update(){ GetComponent<Rigidbody>().AddForce(...); }","fix":"Cache reference in Awake/Start"}]
      ```
+   - `catalogId` is **required** and must exactly match an ID in the matching `references/category-{category}.md` (formats: `C-01`, `P-03`, `R-07`, `U-04`, `A-02`, `B-01`). Drop any issue lacking a valid `catalogId` before embedding.
    - `category` values must be one of: `code-scripting`, `physics`, `rendering`, `ui-canvas`, `assets`, `build-settings` (matches the dropdown).
    - Embed the JSON directly inside the `<script id="issues-data">` tag — no escaping beyond valid JSON.
 
