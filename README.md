@@ -9,8 +9,7 @@ A Claude Code plugin that provides coding standards, workflows, and productivity
 1. Add the marketplace:
 
 ```
-/plugin marketplace add https://github.com/hungcuong21891/claude_code_setup
-```
+/plugin marketplace add https://github.com/hungcuong21891/kooky-claude-marketplace
 
 2. Install the plugin:
 
