@@ -40,6 +40,41 @@ Three outcomes:
 
 NEVER fudge a plan to fit an unrealistic timeframe - it sets the learner up to fail and blame the plan. Honesty here saves them weeks.
 
+## Step 3.5 - Goal Verification Criteria (HARD GATE)
+
+After feasibility passes and BEFORE designing the plan, propose a checklist of **observable acceptance criteria** that define "goal reached". The criteria are the contract between learner and teacher — the final assessment on Day N tests exactly these, and every day's exercises must move at least one criterion closer.
+
+Rules:
+- Propose **3-6 criteria**. Fewer than 3 = goal too vague; more than 6 = goal too sprawling, narrow it.
+- Each criterion MUST be:
+  - **Observable** — a third party watching the learner could agree it's met (no "understands X", "is comfortable with Y").
+  - **Demonstrable on Day N** — produces an artifact, a passing test, a running demo, or a verbal explanation the learner can give unaided.
+  - **Scoped to the goal** — no aspirational extras the timeframe can't carry; no foundations already implied by the level calibration.
+- Derive criteria from the goal + learner level — a beginner-Python "build a CRUD API" goal does NOT include "deploy with zero-downtime blue/green" unless the learner asked for it.
+- Use verbs like *build, ship, pass, explain unaided, refactor, diagnose, reproduce, complete in <N> minutes* — not *learn, know, understand, be familiar with*.
+
+Present the criteria to the learner in this exact shape:
+
+```
+For "<GOAL>" in <N> days, here is how we will know you've reached it.
+On the final day you will be able to demonstrate:
+
+- [ ] <criterion 1>
+- [ ] <criterion 2>
+- [ ] <criterion 3>
+- [ ] <criterion 4>   (optional)
+- [ ] <criterion 5>   (optional)
+
+Confirm, edit, or add criteria before I design the day-by-day plan.
+```
+
+Wait for the learner's confirm/edit reply. Loop on edits until the learner approves. ONLY then proceed to Step 4. These confirmed criteria become:
+- The `Outcome (Final Measurable Goal)` checklist in `plan.md` (verbatim).
+- The pass list for `day-NN-final-assessment.md`.
+- The reference set that each day's `Measurable goal` must trace back to.
+
+If the learner cannot articulate or agree on criteria, the goal is still vague — go back to Step 2 probing.
+
 ## Step 4 - Design the Day-by-Day Plan (split into per-day files)
 
 Methodology in `../plan-design-guide.md`. **Before authoring any day file that covers a specific library/framework/SDK/API/CLI/cloud service, run a docs lookup (context7 first, WebFetch fallback) for that day's topic — see Principle 6.7.** Output is a SMALL DIRECTORY, not a single monolithic file:

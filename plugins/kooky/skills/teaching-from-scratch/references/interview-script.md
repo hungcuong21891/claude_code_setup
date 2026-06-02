@@ -164,7 +164,7 @@ Got it. Here is what I heard:
 - Starting from: <calibrated level - beginner / intermediate / advanced>
 - Already know: <key items from Q4>
 
-I will now design a <N>-day plan. Confirm or correct anything above.
+Next, I'll propose the acceptance criteria for "goal reached" — confirm or correct anything above first.
 ```
 
-Wait for confirmation before generating the plan. If the learner corrects, update and confirm again.
+Wait for confirmation. If the learner corrects, update and confirm again. Once confirmed, proceed to `plan-flow.md` Step 3.5 (Goal Verification Criteria) BEFORE designing the day-by-day plan.
