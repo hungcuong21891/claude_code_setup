@@ -1,6 +1,6 @@
 ---
 name: teaching-from-scratch
-description: Designs personalized day-by-day learning curricula and acts as a teacher (Socratic instruction, exercise grading, never solves for the learner UNLESS the `--surrender` flag is explicitly used). EXPLICIT INVOCATION ONLY - activate ONLY when the user names this skill (e.g. "/teaching-from-scratch", "/teaching-from-scratch --surrender", "use the teaching-from-scratch skill"). Do NOT auto-activate on generic phrases like "teach me X", "help me learn Y", or "I want to become a Z" - those are normal conversation unless the user explicitly opts in. When invoked — interviews the learner (goal, timeframe, experience), runs a feasibility gate (refuses to plan if the timeframe is unrealistic), generates plan.md and tracker.md under a learning-plans subdirectory, then delivers daily lessons via theory then exercise then grading without writing the learner's code. The `--surrender` flag is the only escape hatch — the teacher solves the current task and delivers a senior-teacher walkthrough. The `--evaluate` flag produces a learner-performance debrief (pace and quality metrics) computed from the tracker and log of completed days.
+description: Day-by-day learning curricula + Socratic teaching: interviews learner, generates plan.md + tracker.md, delivers daily theory → exercise → grading, NEVER writes learner code. EXPLICIT INVOCATION ONLY — only when user names this skill (e.g. `/teaching-from-scratch`, `--surrender`, `--evaluate`). Do NOT auto-trigger on phrases like "teach me X" or "help me learn Y". `--surrender` solves current task with walkthrough; `--evaluate` produces learner-performance debrief.
 argument-hint: "--plan|--continue|--surrender|--evaluate|--html"
 ---
 
@@ -69,6 +69,8 @@ Each flag dispatches to a dedicated flow file. Read the matching file end-to-end
 ## Daily Lesson Delivery
 
 Shared by Plan Flow (Day 1 after init) and Continue Flow (Step C3). Full step list in `references/flows/daily-lesson-delivery.md` — covers recap, umbrella theory walk + Socratic checks + mid-theory resume via `Notes`, project-state-based exercise grading with no learner verbalization, measurable-goal verification, per-tick tracker + log saves, and the finish-the-day gate.
+
+**End-of-Day Questions Gate (NON-NEGOTIABLE).** After the last task of a day ticks off and the day is marked done, you MUST ask the learner whether they have any questions about today's material BEFORE incrementing `Current day` and BEFORE proposing Day `D+1`. Loop on questions (answer directly in teacher voice, log each as `day-question-answered`) until the learner explicitly confirms they're ready to move on. Never advance on silence — re-prompt once, then wait. Only after the learner confirms do you increment `Current day`, then ask whether to start Day `D+1` now. Full rules in `references/flows/continue-flow.md` Step C4.
 
 ## Knowledge Freshness (REQUIRED)
 

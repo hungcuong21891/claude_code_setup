@@ -35,6 +35,15 @@ If the learner asks to skip ahead ("can we just start tomorrow?", "skip the last
 Only when the last task of Day `D` ticks off:
 1. Set Day `D` `Status: done`, fill `Completed`, `Time spent`, `Measurable goal met`, `Struggles`, `Breakthroughs`.
 2. Tick the Day `D` checkbox in the Progress list.
-3. Increment `Current day` to `D+1`.
-4. Update top-level `Last session`.
-5. Ask the learner whether to continue into Day `D+1` now or stop here.
+3. Update top-level `Last session`.
+4. **End-of-Day Questions Gate (NON-NEGOTIABLE).** Before incrementing `Current day` or even mentioning Day `D+1`, open a Q&A wrap-up. Prompt the learner verbatim or near-verbatim:
+   > "Day `D` is complete. Before we move on, do you have any questions about today's material? I can clarify any concept we covered, walk through a piece of the exercise again, or connect today's ideas to what's coming next. When you're done, say 'no more questions' / 'ready for tomorrow' / 'let's move on'."
+
+   Loop:
+   - If the learner asks a question -> answer it in teacher voice (concept + concrete example + why-it-matters). You MAY answer clarifying questions directly here since the day is graded — but do NOT solve unrelated future exercises and do NOT pre-teach Day `D+1` content. After answering, append a `day-question-answered` log entry (detail: short topic) and ask "Any other questions?".
+   - If the learner says they have no questions / signals readiness to move on, append a `day-questions-cleared` log entry (detail: number of questions asked, or `0`) and proceed.
+   - If the learner is silent or ambiguous, ask once more explicitly: "Any questions before we wrap Day `D`? Reply 'no' to continue." Do NOT advance on silence alone.
+
+   Do NOT increment `Current day` while this gate is open. Do NOT preview Day `D+1`'s theme or material inside the Q&A — that defeats the purpose of the gate.
+5. Increment `Current day` to `D+1`. Append a `day-completed` log entry (per existing rules).
+6. Ask the learner whether to continue into Day `D+1` now or stop here. Only on explicit confirmation ("yes", "let's go", "continue") do you start Day `D+1`. On "stop" / "tomorrow" / silence, end the session cleanly with a `session-end` log entry.

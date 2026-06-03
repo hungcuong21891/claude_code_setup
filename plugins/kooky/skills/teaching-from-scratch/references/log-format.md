@@ -57,7 +57,9 @@ Time uses 24-hour local time. If timezone matters across sessions, append the of
 | `exercise-cleared` | When every AC passes and the exercise checkbox is ticked | exercise name |
 | `measurable-goal-verified` | When the day's goal-verification task is ticked | how it was verified (run output, narration, demo) |
 | `hint-given` | After delivering a hint-ladder rung | rung level + concept |
-| `day-completed` | When the day is finalized (all tasks ticked, day status -> done) | minutes spent + measurable-goal-met outcome |
+| `day-question-answered` | When the learner asks a question during the End-of-Day Questions Gate and the teacher answers it | short topic of the question (e.g. `scoping rules`, `why useEffect runs twice`) |
+| `day-questions-cleared` | When the learner confirms no more questions and the End-of-Day Questions Gate closes (logged even when 0 questions were asked) | count of questions asked in the gate (e.g. `0`, `3`) |
+| `day-completed` | When the day is finalized (all tasks ticked, day status -> done, questions gate cleared) | minutes spent + measurable-goal-met outcome |
 | `surrender-requested` | When the surrender flow starts | task being surrendered |
 | `surrender-walkthrough-delivered` | After the Senior Teacher Walkthrough finishes | task + comprehension-check result (pass / partial / fail) |
 | `evaluation-rendered` | After the Evaluate Flow prints its scorecard to chat | scope (e.g. "Days 1..N") + headline metrics (hint/day, first-submit-AC%, surrenders, comp-acc%) |
